@@ -109,22 +109,32 @@ sprite7 = [
     my_spritesheet2.parse_sprite('fire'),
 ]
 
-running = True
-length = len(sprite7)
-i = 0
-print(i + 1)
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_SPACE:
-                i += 1
+tile_sheet = Spritesheet("assets/generalSpriteSheet", "gif")
+TILE_SPRITES = {
+    "brick": tile_sheet.parse_sprite('brick'),
+    "ground": tile_sheet.parse_sprite('ground'),
+    "box": tile_sheet.parse_sprite('box'),
+    "mbox": tile_sheet.parse_sprite('mbox'),
+    "coin": tile_sheet.parse_sprite('coin'),
+    "pipe": tile_sheet.parse_sprite('pipe'),
+    "flag": tile_sheet.parse_sprite('flag')
+}
+# running = True
+# length = len(sprite7)
+# i = 0
+# print(i + 1)
+# while running:
+#     for event in pygame.event.get():
+#         if event.type == pygame.QUIT:
+#             running = False
+#         if event.type == pygame.KEYDOWN:
+#             if event.key == pygame.K_SPACE:
+#                 i += 1
 
-    canvas.fill((255, 255, 255))
-    pygame.draw.rect(canvas, black, (0, 500, 32, 32))
-    canvas.blit(MARIO_M_SPRITE[i % len(MARIO_M_SPRITE)], (0, 600 - 100))
-    window.blit(canvas, (0, 0))
-    pygame.display.update()
+#     canvas.fill((255, 255, 255))
+#     canvas.blit(pygame.transform.scale(
+#         TILE_SPRITES[i % len(TILE_SPRITES)], (32, 32)), (0, 600 - 100))
+#     window.blit(canvas, (0, 0))
+#     pygame.display.update()
 
-pygame.quit()
+# pygame.quit()

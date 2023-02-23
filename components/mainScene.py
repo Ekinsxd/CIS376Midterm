@@ -24,8 +24,8 @@ class Display:
         self.fps = constants.FRAME_LIMIT
         self.players = pg.sprite.Group()
         self.players.add(Player())
-
         self.map = TileMap('assets/mario_world.csv', spritesheet.TILE_SPRITES)
+        self.x_offset = 0
 
     def run(self):
         """A method that contains the main game loop.
@@ -40,39 +40,47 @@ class Display:
         while True:  # main game loop
 
             # Gets and deals with events.
+            dt = self.clock.tick(
+                constants.FRAME_LIMIT) * .001 * 60
 
-            self.clock.tick(constants.FRAME_LIMIT)
-            pg.display.update()
-
-            for event in pg.event.get():
-                try:                    # press space to iterate the automata maze
-                    if event.type == KEYDOWN:
-                        # quit if escape is pressed
-                        if event.key == K_ESCAPE:
-                            pg.quit()
-                            sys.exit()
-                except Exception as e:
-                    print(e)
-
-                if event.type == QUIT:
-                    pg.quit()
-                    sys.exit()
-
-            keys = key.get_pressed()
             for player in self.players:
-                if keys[K_w]:
-                    player.moveUp()
-                if keys[K_a]:
-                    player.moveLeft()
-                if keys[K_s]:
-                    player.moveDown()
-                if keys[K_d]:
-                    player.moveRight()
+                for event in pg.event.get():
+                    if event.type == pygame.KEYDOWN:
+                        if event.key == pygame.K_a:
+                            player.LEFT_KEY = True
+                        elif event.key == pygame.K_d:
+                            player.RIGHT_KEY = True
+                        elif event.key == pygame.K_w:
+                            player.jump()
+                        elif event.key == pygame.K_LSHIFT:
+                            player.RUN_KEY = True
 
-            self.canvas.fill((0, 180, 240))
-            self.map.load_map()
-            self.map.draw_map(self.canvas, (0, 0))
+                    if event.type == pygame.KEYUP:
+                        if event.key == pygame.K_a:
+                            player.LEFT_KEY = False
+                        elif event.key == pygame.K_d:
+                            player.RIGHT_KEY = False
+                        elif event.key == pygame.K_w:
+                            if player.is_jumping:
+                                player.velocity.y *= .25
+                                player.is_jumping = False
+                        elif event.key == pygame.K_LSHIFT:
+                            player.RUN_KEY = False
+
+                    if event.type == QUIT:
+                        pg.quit()
+                        sys.exit()
+                if player.rect.x > self.x_offset + constants.RESOLUTION[0] / 2 and \
+                        self.x_offset < player.position.x:
+                    self.x_offset = player.position.x - \
+                        constants.RESOLUTION[0] / 2
+
+                player.update(dt, self.map.tiles, self.x_offset)
+                self.canvas.fill((0, 180, 240))
+                self.map.load_map()
+                self.map.draw_map(self.canvas, (-self.x_offset, 0))
+                player.draw(self.canvas, self.x_offset)
+                print(player.position)
 
             self.screen.blit(self.canvas, (0, 0))
-            self.players.draw(self.screen)
             pg.display.update()

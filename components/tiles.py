@@ -57,6 +57,9 @@ class TileMap():
                 elif tile == '30':
                     tiles.append(Tile('brick', x * self.tile_size,
                                  y * self.tile_size, self.spritesheet))
+                elif tile == '25':
+                    tiles.append(Tile('box', x * self.tile_size,
+                                 y * self.tile_size, self.spritesheet))
                     # Move to next tile in current row
                 x += 1
 

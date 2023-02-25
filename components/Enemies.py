@@ -113,28 +113,41 @@ class Goomba(pygame.sprite.Sprite):
         
         self.move_left = True
         """Helps determine where the Goomba should move."""
+        
+        #Inital movement of Goomba.
         self.body.linearVelocity = Box2D.b2Vec2(-1,0)
-        self.previous_position = self.body.position
+
         
     def update(self):
-        """Updates the location and state of the Goomba."""
+        """
+        Updates the location and state of the Goomba.
+
+        Params:
+        None
+
+        Returns:
+        None
+        """
         self.rect.center = self.body.position[0] * box_to_world_ratio, HEIGHT - self.body.position[1] * box_to_world_ratio
         print('box2d x:', self.body.position[0])
         print('box2d y:',self.body.position[1])
         print(self.rect.centerx)
         print(HEIGHT - self.rect.centery)
         collided = pygame.sprite.spritecollide(self, wallGroup, False)
+        koopa_collided = pygame.sprite.spritecollide(self, koopa_group, False)
 
         if len(collided) > 0:
-            print('collision OCCURRED')
+            #print('collision OCCURRED')
             #time.sleep(1)
             self.changeDirection()
+        if len(koopa_collided) != 0:
+            if koopa_collided[0].isMovingShell:
+                self.terminate()
+        
         if not self.isDead:
             if self.move_left:
-                    #self.body.ApplyForce(Box2D.b2Vec2(-0.1, 0), self.body.position, True)
                 self.body.linearVelocity = Box2D.b2Vec2(-1,0)
             else:
-                #self.body.ApplyForce(Box2D.b2Vec2(0.1, 0), self.body.position, True)
                 self.body.linearVelocity = Box2D.b2Vec2(1,0)
 
         if self.count == 5:
@@ -152,9 +165,30 @@ class Goomba(pygame.sprite.Sprite):
             self.walk_frame += 1
     
     def terminate(self):
+        """
+        This causes the Goomba to get squished, and will remove the Goomba
+        from game eventually.
+
+        Params:
+        None
+
+        Returns:
+        None
+        
+        """
         self.isDead = True
     
     def changeDirection(self):
+        """
+        Changes direction of Goomba, this is a helper method to help with collision with a wall.
+
+        Params:
+        None
+
+        Returns:
+        None
+        
+        """
         self.move_left = not self.move_left
 
 class Koopa(pygame.sprite.Sprite):
@@ -177,7 +211,7 @@ class Koopa(pygame.sprite.Sprite):
         self.body = world.CreateDynamicBody(position=(x *world_to_box_ratio, (y) * world_to_box_ratio))
         """The Box2D for the Goomba, used to calcuate the position of the body based on physics."""
         
-        shape = Box2D.b2PolygonShape(box=(14 * world_to_box_ratio, 20 * world_to_box_ratio))
+        shape = Box2D.b2PolygonShape(box=(12 * world_to_box_ratio, 20 * world_to_box_ratio))
         fixDef = Box2D.b2FixtureDef(shape=shape, friction=0.1, restitution=0, density = 0.5)
         fixDef.filter.groupIndex = -1
         
@@ -210,15 +244,27 @@ class Koopa(pygame.sprite.Sprite):
         """Helps to determine when to change the image of the Koopa."""
         
         self.move_left = True
-        """Helps determine where the GKoopa should move."""
+        """Helps determine where the Koopa should move."""
         self.body.linearVelocity = Box2D.b2Vec2(-1,0)
 
         self.isInShell = False
+        """If the Koopa is in its shell from being stepped on by the player."""
         self.isMovingShell = False
+        """State if the shell is moving from the Player jumping on the Koopa shell."""
+        
         self.shell_direction = 2
+        """Helps with the shell's velocity. when the shell is moving."""
         
     def update(self):
-        """Updates the location and state of the Goomba."""
+        """
+        Updates the location and state of the Koopa.
+
+        Params:
+        None
+
+        Returns:
+        None
+        """
         self.rect.center = self.body.position[0] * box_to_world_ratio, HEIGHT - self.body.position[1] * box_to_world_ratio
         print('box2d x:', self.body.position[0])
         print('box2d y:',self.body.position[1])
@@ -227,9 +273,10 @@ class Koopa(pygame.sprite.Sprite):
         collided = pygame.sprite.spritecollide(self, wallGroup, False)
 
         if len(collided) > 0:
-            print('collision OCCURRED')
+            print('collision with Wall OCCURRED')
             #time.sleep(1)
             self.changeDirection()
+
         if not self.isDead:
             if self.move_left:
                     #self.body.ApplyForce(Box2D.b2Vec2(-0.1, 0), self.body.position, True)
@@ -237,7 +284,7 @@ class Koopa(pygame.sprite.Sprite):
             else:
                 #self.body.ApplyForce(Box2D.b2Vec2(0.1, 0), self.body.position, True)
                 self.body.linearVelocity = Box2D.b2Vec2(1,0)
-                
+
         if self.count == 5:
             self.body.DestroyFixture(self.physics_box)
             self.kill()
@@ -257,18 +304,51 @@ class Koopa(pygame.sprite.Sprite):
             self.body.linearVelocity = Box2D.b2Vec2(0,0)
     
     def terminate(self):
+        """
+        Terminates the Koopa right away. This should be used when the player casts a fireball.
+        
+        Params:
+        None
+
+        Returns:
+        None
+        """
         self.isDead = True
     
     def hideInShell(self):
+        """
+        Causes the Koopa to hide in its shell due to the Player jumping on top of it.
+        
+        Params:
+        None
+
+        Returns:
+        None
+        """
         self.isInShell = True
     
     def kickedInShell(self, force):
+        """
+        Causes the Koopa to move in a certain direction due to the Player jumping on it during
+        it's inShell State.
+
+        @Params:
+        force: Helps determine where the shell should move. force should be a val to determine
+        where the player is facing. Left should be negative, Right should be positive.
+
+        Returns:
+        None
+        """
         if force < 0:
-            self.shell_direction = -2
+            self.shell_direction *= -1
         self.isMovingShell = True
     
     def changeDirection(self):
-        self.move_left = not self.move_left
+        self.shell_direction *= -1
+        self.body.linearVelocity = Box2D.b2Vec2(self.shell_direction,0)
+
+        
+
 
 
 ground = Ground(0, 1, 25, 1)
@@ -300,6 +380,7 @@ while running:
             if event.key == pygame.K_SPACE:
                 goomba.terminate()
                 koopa.hideInShell()
+                #koopa.terminate()
             if event.key == pygame.K_UP:
                 goomba.changeDirection()
                 koopa.kickedInShell(1)

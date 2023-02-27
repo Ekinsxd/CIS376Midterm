@@ -38,78 +38,62 @@ black = (0, 0, 0)
 
 
 my_spritesheet = Spritesheet("assets/Super Mario Bros Sprite", "gif")
-MARIO_M_SPRITE = [my_spritesheet.parse_sprite('lm1'),
-                  my_spritesheet.parse_sprite('lm2'),
-                  my_spritesheet.parse_sprite('lm3'),
-                  my_spritesheet.parse_sprite('lm4'),
-                  my_spritesheet.parse_sprite('lm5'),
-                  my_spritesheet.parse_sprite('lm6'),
-                  my_spritesheet.parse_sprite('lm7'),
-                  my_spritesheet.parse_sprite('lm8'),
-                  my_spritesheet.parse_sprite('lm9'),
-                  my_spritesheet.parse_sprite('lm10'),
-                  my_spritesheet.parse_sprite('lm11'),
-                  my_spritesheet.parse_sprite('lm12'),
-                  my_spritesheet.parse_sprite('lm13'),
-                  my_spritesheet.parse_sprite('lm14'),
-                  ]
-MARIO_S_SPRITE = [
-    my_spritesheet.parse_sprite('sm1'),
-    my_spritesheet.parse_sprite('sm2'),
-    my_spritesheet.parse_sprite('sm3'),
+
+MARIO_M_SPRITES = [
+    my_spritesheet.parse_sprite('lm1'),  # jump
+    my_spritesheet.parse_sprite('lm7'),  # idle
+    my_spritesheet.parse_sprite('lm6'),  # duck
+    my_spritesheet.parse_sprite('lm3'),
+    my_spritesheet.parse_sprite('lm4'),
+    my_spritesheet.parse_sprite('lm5'),
+    my_spritesheet.parse_sprite('lm4'),
+]
+
+MARIO_S_SPRITES = [
+    my_spritesheet.parse_sprite('sm7'),  # idle
+    my_spritesheet.parse_sprite('sm2'),  # jump
+    my_spritesheet.parse_sprite('sm7'),  # idle is duck
     my_spritesheet.parse_sprite('sm4'),
     my_spritesheet.parse_sprite('sm5'),
     my_spritesheet.parse_sprite('sm6'),
-    my_spritesheet.parse_sprite('sm7'),
-    my_spritesheet.parse_sprite('sm8'),
-    my_spritesheet.parse_sprite('sm9'),
-    my_spritesheet.parse_sprite('sm10'),
-    my_spritesheet.parse_sprite('sm11'),
-    my_spritesheet.parse_sprite('sm12'),
-    my_spritesheet.parse_sprite('sm13'),
+    my_spritesheet.parse_sprite('sm5'),
 ]
 
-MARIO_ICON_SPRITE = [my_spritesheet.parse_sprite('tm1'),
-                     my_spritesheet.parse_sprite('tm2')]
-
-MARIO_FIRE_SPRITE = [my_spritesheet.parse_sprite('fm1'),
-                     my_spritesheet.parse_sprite('fm2'),
-                     my_spritesheet.parse_sprite('fm3'),
-                     my_spritesheet.parse_sprite('fm4'),
-                     my_spritesheet.parse_sprite('fm5'),
-                     my_spritesheet.parse_sprite('fm6'),
-                     my_spritesheet.parse_sprite('fm7'),
-                     my_spritesheet.parse_sprite('fm8'),
-                     my_spritesheet.parse_sprite('fm9'),
-                     my_spritesheet.parse_sprite('fm10'),
-                     my_spritesheet.parse_sprite('fm11'),
-                     my_spritesheet.parse_sprite('fm12'),
-                     my_spritesheet.parse_sprite('fm13'),
-                     my_spritesheet.parse_sprite('fm14'),
-                     ]
-
-GOOMBA_SPRITE = [my_spritesheet.parse_sprite('g1'),
-                 my_spritesheet.parse_sprite('g2'),
-                 my_spritesheet.parse_sprite('g3'),
-                 ]
-
-KOOPA_SPRITE = [my_spritesheet.parse_sprite('k1'),
-                my_spritesheet.parse_sprite('k2'),
-                my_spritesheet.parse_sprite('k3'),
-                my_spritesheet.parse_sprite('k4'),
-                my_spritesheet.parse_sprite('k5'),
-                my_spritesheet.parse_sprite('k6'),
-
-                ]
-my_spritesheet2 = Spritesheet("assets/items-objects", "png")
-sprite7 = [
-    my_spritesheet2.parse_sprite('m1'),
-    my_spritesheet2.parse_sprite('m2'),
-    my_spritesheet2.parse_sprite('flower'),
-    my_spritesheet2.parse_sprite('box'),
-    my_spritesheet2.parse_sprite('coin'),
-    my_spritesheet2.parse_sprite('fire'),
+MARIO_FIRE_SPRITES = [
+    my_spritesheet.parse_sprite('fm7'),  # idle
+    my_spritesheet.parse_sprite('fm1'),  # jump
+    my_spritesheet.parse_sprite('fm6'),  # duck
+    my_spritesheet.parse_sprite('fm3'),
+    my_spritesheet.parse_sprite('fm4'),
+    my_spritesheet.parse_sprite('fm5'),
+    my_spritesheet.parse_sprite('fm4'),
 ]
+
+my_spritesheet = Spritesheet(
+    "assets/Super Mario Bros Sprite", "gif")
+GOOMBA_SPRITE = [
+    my_spritesheet.parse_sprite('g3'),
+    my_spritesheet.parse_sprite('g2'),
+    my_spritesheet.parse_sprite('g1'),
+]
+
+KOOPA_SPRITE = [
+    my_spritesheet.parse_sprite('k3'),
+    my_spritesheet.parse_sprite('k4'),
+    my_spritesheet.parse_sprite('k1'),
+    my_spritesheet.parse_sprite('k2'),
+    my_spritesheet.parse_sprite('k5'),
+    my_spritesheet.parse_sprite('k6'),
+]
+# my_spritesheet2 = Spritesheet("assets/items-objects", "png")
+# sprite7 = [
+#     my_spritesheet2.parse_sprite('m1'),
+#     my_spritesheet2.parse_sprite('m2'),
+#     my_spritesheet2.parse_sprite('flower'),
+#     my_spritesheet2.parse_sprite('box'),
+#     my_spritesheet2.parse_sprite('coin'),
+#     my_spritesheet2.parse_sprite('fire'),
+# ]
 
 tile_sheet = Spritesheet("assets/generalSpriteSheet", "gif")
 TILE_SPRITES = {
@@ -122,7 +106,6 @@ TILE_SPRITES = {
     "flag": tile_sheet.parse_sprite('flag')
 }
 # running = True
-# length = len(sprite7)
 # i = 0
 # print(i + 1)
 # while running:
@@ -134,10 +117,8 @@ TILE_SPRITES = {
 #                 i += 1
 
 #     canvas.fill((255, 255, 255))
-#     canvas.blit(pygame.transform.scale(
-#         TILE_SPRITES[i % len(TILE_SPRITES)], (32, 32)), (0, 600 - 100))
+#     canvas.blit(MARIO_M_SPRITES[i % len(MARIO_M_SPRITES)], (32, 32))
 #     window.blit(canvas, (0, 0))
 #     pygame.display.update()
 
 # pygame.quit()
-

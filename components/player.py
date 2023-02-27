@@ -18,6 +18,7 @@ class State(Enum):
     IDLE = 0
     RUNNING = 1
     JUMPING = 2
+    DUCKING = 2
 
 
 class Player(pg.sprite.Sprite):
@@ -26,10 +27,10 @@ class Player(pg.sprite.Sprite):
     def __init__(self):
         """Constructor to create the Player Object."""
         super().__init__()
-        self.playerState = State.IDLE
-        self.playerSize = Power.SMALL
+        self.player_state = State.IDLE
+        self.player_size = Power.SMALL
         self.sprites = []
-        self.LEFT_KEY, self.RIGHT_KEY, self.RUN_KEY, self.FACING_LEFT = False, False, False, False
+        self.LEFT_KEY, self.RIGHT_KEY, self.RUN_KEY, self.FACING_RIGHT = False, False, False, True
         self.is_jumping, self.on_ground = False, False
         self.gravity, self.friction = .35, -.22
         self.walk_speed = 4
@@ -39,9 +40,11 @@ class Player(pg.sprite.Sprite):
         self.velocity = pg.math.Vector2(0, 0)
         self.acceleration = pg.math.Vector2(0, self.gravity)
 
+        self.frame_count = 0
         self.image = None
         self.rect = pg.Rect(0, 0, 32, 32)
         self.calcPlayerImage()
+        self.rect = pg.Rect(self.position[0], self.position[1], 32, 32)
 
     def draw(self, surface, offset):
         """Method to draw the player to the screen.
@@ -54,18 +57,34 @@ class Player(pg.sprite.Sprite):
         """
         surface.blit(self.image, (self.rect.x - offset, self.rect.y))
 
+    def loseHealth(self):
+
+        pass
+
     def update(self, dt, tiles, min_x):
+        self.frame_count += 1
         self.horizontal_movement(dt, min_x)
         self.checkCollisionsx(tiles)
         self.vertical_movement(dt)
         self.checkCollisionsy(tiles)
+        self.calcPlayerImage()
 
     def horizontal_movement(self, dt, min_x):
         self.acceleration.x = 0
+        if not self.is_jumping:
+            self.player_state = State.IDLE
         if self.LEFT_KEY:
             self.acceleration.x -= self.run_speed if self.RUN_KEY else self.walk_speed
+
+            if not self.is_jumping:
+                self.player_state = State.RUNNING
+            self.FACING_RIGHT = False
         elif self.RIGHT_KEY:
             self.acceleration.x += self.run_speed if self.RUN_KEY else self.walk_speed
+
+            if not self.is_jumping:
+                self.player_state = State.RUNNING
+            self.FACING_RIGHT = True
         elif self.on_ground and self.velocity.x != 0:
             if abs(self.velocity.x) < 0.3:
                 self.velocity.x = 0
@@ -89,28 +108,49 @@ class Player(pg.sprite.Sprite):
             (self.acceleration.y * .5) * (dt * dt)
         self.rect.bottom = self.position.y
 
+        if abs(self.velocity.y) < 0.2 and self.on_ground:
+            self.is_jumping = False
+
     def limit_velocity(self, max_vel):
         self.velocity.x = max(-max_vel, min(self.velocity.x, max_vel))
         if abs(self.velocity.x) < .01:
             self.velocity.x = 0
 
+    # my_spritesheet.parse_sprite('fm7'),  # idle
+    # my_spritesheet.parse_sprite('fm1'),  # jump
+    # my_spritesheet.parse_sprite('fm6'),  # duck
+    # my_spritesheet.parse_sprite('fm3'),
+    # my_spritesheet.parse_sprite('fm4'),
+    # my_spritesheet.parse_sprite('fm5'),
+    # my_spritesheet.parse_sprite('fm4'),
     def calcPlayerImage(self):
         ratio = 1
-        if self.playerSize == Power.SMALL:
-            self.sprites = MARIO_S_SPRITE
-        elif self.playerSize == Power.BIG:
-            self.sprites = MARIO_M_SPRITE
+        if self.player_size == Power.SMALL:
+            self.sprites = MARIO_S_SPRITES
+        elif self.player_size == Power.BIG:
+            self.sprites = MARIO_M_SPRITES
             ratio = 2
-        elif self.playerSize == Power.FIRE:
-            self.sprites = MARIO_FIRE_SPRITE
+        elif self.player_size == Power.FIRE:
+            self.sprites = MARIO_FIRE_SPRITES
             ratio = 2
 
-        self.image = self.sprites[0]
-        self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * ratio)
-        self.image = pg.transform.scale(self.image, (32, 32 * ratio))
+        if self.player_state == State.IDLE:
+            self.image = self.sprites[0]
+        elif self.player_state == State.JUMPING:
+            self.image = self.sprites[1]
+        elif self.player_state == State.DUCKING:
+            self.image = self.sprites[2]
+        elif self.player_state == State.RUNNING:
+            self.image = self.sprites[3 + (self.frame_count // 10) % 4]
+
+        if self.FACING_RIGHT:
+            self.image = pg.transform.flip(self.image, True, False)
+
+        # self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * ratio)
 
     def jump(self):
         if self.on_ground:
+            self.player_state = State.JUMPING
             self.is_jumping = True
             self.velocity.y -= 13
             self.on_ground = False

@@ -2,15 +2,17 @@
 # Make sure the local python is anaconda and that the pybox2d environment is activated
 import Box2D
 import pygame
-import spritesheet
+import components.spritesheet as spritesheet
 import time
-import constants
+import components.constants as constants
+import sys
+sys.path.append('../')
 #################
 #We will need these in the Engine
 world_to_box_ratio = 1/100
 box_to_world_ratio = 100
 gravity = Box2D.b2Vec2(0.5, -10.0)
-world = Box2D.b2World(gravity=gravity, doSleep=False)
+#world = Box2D.b2World(gravity=gravity, doSleep=False)
 
 WIDTH = constants.RESOLUTION[0]
 HEIGHT = constants.RESOLUTION[1]
@@ -22,7 +24,7 @@ clock = pygame.time.Clock()
 black = (0, 0, 0)
 #############################################
 
-my_spritesheet = spritesheet.Spritesheet("../assets/Super Mario Bros Sprite", "gif")
+my_spritesheet = spritesheet.Spritesheet("assets/Super Mario Bros Sprite", "gif")
 GOOMBA_SPRITE = [
     my_spritesheet.parse_sprite('g3'),
     my_spritesheet.parse_sprite('g2'),
@@ -39,33 +41,14 @@ KOOPA_SPRITE = [
                 ]
 ############
 
-class Ground(pygame.sprite.Sprite):
-    def __init__(self, x,y,w,h):
-        super().__init__()
-        self.body = world.CreateStaticBody(position=(x,y), shapes=Box2D.b2PolygonShape(box=(w,h)))
-        self.image = pygame.Surface((2*w*box_to_world_ratio, 2 * h * box_to_world_ratio))
-        self.image.fill((0,0,0))
-        self.rect = self.image.get_rect()
-        self.rect.center = self.body.position.x * box_to_world_ratio, HEIGHT - self.body.position.y * box_to_world_ratio
-    
-    def update():
-        pass
 
-class Wall(pygame.sprite.Sprite):
-    def __init__(self, x,y,w,h):
-        super().__init__()
-        self.body = world.CreateStaticBody(position=(x,y), shapes=Box2D.b2PolygonShape(box=(w,h)))
-        self.image = pygame.Surface((2*w*box_to_world_ratio, 2 * h * box_to_world_ratio))
-        self.image.fill((0,0,0))
-        self.rect = self.image.get_rect()
-        self.rect.center = self.body.position.x * box_to_world_ratio, HEIGHT - self.body.position.y * box_to_world_ratio
 
 class Goomba(pygame.sprite.Sprite):
     """A mushroom that is an enemy to the Player. 
     If a Goomba touches the player when the player is not in the air, the player dies or takes damage.
     If the player jumps on top of the Goomba, the Goomba dies."""
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, world):
         """Creates a Goomba at a location.
         Params:
             x: the x coordinate position for the Goomba in PIXEL Position. Left decreases X val, Right increases X value.
@@ -118,7 +101,7 @@ class Goomba(pygame.sprite.Sprite):
         self.body.linearVelocity = Box2D.b2Vec2(-1,0)
 
         
-    def update(self):
+    def update(self, wallGroup, koopa, players):
         """
         Updates the location and state of the Goomba.
 
@@ -134,7 +117,13 @@ class Goomba(pygame.sprite.Sprite):
         print(self.rect.centerx)
         print(HEIGHT - self.rect.centery)
         collided = pygame.sprite.spritecollide(self, wallGroup, False)
-        koopa_collided = pygame.sprite.spritecollide(self, koopa_group, False)
+        koopa_collided = pygame.sprite.spritecollide(self, koopa, False)
+        player_collided = pygame.sprite.spritecollide(self, players, False)
+
+        if len(player_collided) > 0:
+            for player in player_collided:
+                if player.is_jumping or not player.on_ground:
+                    self.terminate()
 
         if len(collided) > 0:
             #print('collision OCCURRED')
@@ -177,6 +166,7 @@ class Goomba(pygame.sprite.Sprite):
         
         """
         self.isDead = True
+        self.image = GOOMBA_SPRITE[2]
     
     def changeDirection(self):
         """
@@ -197,7 +187,7 @@ class Koopa(pygame.sprite.Sprite):
     If the player jumps on top of the Koopa, the Koopa hides in its shell.
     The the player jumps on top of the shell, the shell will move and terminate any Goombas or other Koopas."""
 
-    def __init__(self, x, y):
+    def __init__(self, x, y, world):
         """Creates a Koopa at a location.
         Params:
             x: the x coordinate position for the Goomba in PIXEL Position. Left decreases X val, Right increases X value.
@@ -254,8 +244,10 @@ class Koopa(pygame.sprite.Sprite):
         
         self.shell_direction = 2
         """Helps with the shell's velocity. when the shell is moving."""
+        self.killable_count = 0
+        self.time_before_kick = 0
         
-    def update(self):
+    def update(self, wallGroup, players):
         """
         Updates the location and state of the Koopa.
 
@@ -271,6 +263,19 @@ class Koopa(pygame.sprite.Sprite):
         print(self.rect.centerx)
         print(HEIGHT - self.rect.centery)
         collided = pygame.sprite.spritecollide(self, wallGroup, False)
+        player_collision = pygame.sprite.spritecollide(self, players, False)
+        if len(player_collision) > 0:
+            print('player collision occured.')
+            for player in players:
+                if (player.is_jumping or not player.on_ground) and not self.isInShell:
+                    self.hideInShell()
+                    self.time_before_kick = pygame.time.get_ticks()
+                elif (player.is_jumping or not player.on_ground) and self.isInShell and pygame.time.get_ticks() - self.time_before_kick >= 100:
+                    force = 1
+                    if player.LEFT_KEY:
+                        force *= -1
+                    self.kickedInShell(force)
+
 
         if len(collided) > 0:
             print('collision with Wall OCCURRED')
@@ -326,6 +331,7 @@ class Koopa(pygame.sprite.Sprite):
         None
         """
         self.isInShell = True
+        self.image = KOOPA_SPRITE[2]
     
     def kickedInShell(self, force):
         """
@@ -347,7 +353,29 @@ class Koopa(pygame.sprite.Sprite):
         self.shell_direction *= -1
         self.body.linearVelocity = Box2D.b2Vec2(self.shell_direction,0)
 
-        
+
+""" Below is a self-contained test.
+class Ground(pygame.sprite.Sprite):
+    def __init__(self, x,y,w,h):
+        super().__init__()
+        self.body = world.CreateStaticBody(position=(x,y), shapes=Box2D.b2PolygonShape(box=(w,h)))
+        self.image = pygame.Surface((2*w*box_to_world_ratio, 2 * h * box_to_world_ratio))
+        self.image.fill((0,0,0))
+        self.rect = self.image.get_rect()
+        self.rect.center = self.body.position.x * box_to_world_ratio, HEIGHT - self.body.position.y * box_to_world_ratio
+    
+    def update():
+        pass
+
+class Wall(pygame.sprite.Sprite):
+    def __init__(self, x,y,w,h):
+        super().__init__()
+        self.body = world.CreateStaticBody(position=(x,y), shapes=Box2D.b2PolygonShape(box=(w,h)))
+        self.image = pygame.Surface((2*w*box_to_world_ratio, 2 * h * box_to_world_ratio))
+        self.image.fill((0,0,0))
+        self.rect = self.image.get_rect()
+        self.rect.center = self.body.position.x * box_to_world_ratio, HEIGHT - self.body.position.y * box_to_world_ratio
+
 
 
 
@@ -399,7 +427,7 @@ while running:
     clock.tick(60)
 
 pygame.quit()
-
+"""
 
 
 

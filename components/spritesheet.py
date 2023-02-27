@@ -31,13 +31,13 @@ class Spritesheet:
 
 
 #####################################################################
-#pygame.init()
-#canvas = pygame.Surface((800, 600))
-#window = pygame.display.set_mode((800, 600))
-#black = (0, 0, 0)
+pygame.init()
+canvas = pygame.Surface((800, 600))
+window = pygame.display.set_mode((800, 600))
+black = (0, 0, 0)
 
-"""
-my_spritesheet = Spritesheet("../assets/Super Mario Bros Sprite", "gif")
+
+my_spritesheet = Spritesheet("assets/Super Mario Bros Sprite", "gif")
 MARIO_M_SPRITE = [my_spritesheet.parse_sprite('lm1'),
                   my_spritesheet.parse_sprite('lm2'),
                   my_spritesheet.parse_sprite('lm3'),
@@ -101,7 +101,7 @@ KOOPA_SPRITE = [my_spritesheet.parse_sprite('k1'),
                 my_spritesheet.parse_sprite('k6'),
 
                 ]
-my_spritesheet2 = Spritesheet("../assets/items-objects", "png")
+my_spritesheet2 = Spritesheet("assets/items-objects", "png")
 sprite7 = [
     my_spritesheet2.parse_sprite('m1'),
     my_spritesheet2.parse_sprite('m2'),
@@ -111,7 +111,7 @@ sprite7 = [
     my_spritesheet2.parse_sprite('fire'),
 ]
 
-tile_sheet = Spritesheet("../assets/generalSpriteSheet", "gif")
+tile_sheet = Spritesheet("assets/generalSpriteSheet", "gif")
 TILE_SPRITES = {
     "brick": tile_sheet.parse_sprite('brick'),
     "ground": tile_sheet.parse_sprite('ground'),
@@ -140,4 +140,4 @@ TILE_SPRITES = {
 #     pygame.display.update()
 
 # pygame.quit()
-"""
+

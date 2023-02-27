@@ -1,7 +1,11 @@
+#!/usr/bin/python
+import sys
 import pygame
 import csv
 import os
-
+import Box2D
+import components.mainScene as mainScene
+sys.path.append("../")
 
 class Tile(pygame.sprite.Sprite):
     def __init__(self, image, x, y, spritesheet):
@@ -10,6 +14,11 @@ class Tile(pygame.sprite.Sprite):
         # Manual load in: self.image = pygame.image.load(image)
         self.rect = self.image.get_rect()
         self.rect.x, self.rect.y = x, y
+        ##Added Box2D physics.
+        self.body = mainScene.Display.world.CreateStaticBody(
+            position=(x/100, (600 -32 - y) / 100),
+            shapes = Box2D.b2PolygonShape(box=(0.32,0.32))
+            )
 
     def draw(self, surface):
         surface.blit(self.image, (self.rect.x, self.rect.y))

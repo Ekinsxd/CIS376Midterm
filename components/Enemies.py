@@ -91,6 +91,7 @@ class Goomba(pygame.sprite.Sprite):
         Returns:
         None
         """
+        flag = False
         self.rect.center = self.body.position[0] * \
             box_to_world_ratio, HEIGHT - \
             self.body.position[1] * box_to_world_ratio
@@ -102,9 +103,9 @@ class Goomba(pygame.sprite.Sprite):
             for player in player_collided:
                 if player.is_jumping or not player.on_ground:
                     self.terminate()
+                    flag = True
                 else:
-                    print("Mario hit by goomba")
-                    player.loseHealth()
+                    player.lose_health()
 
         if len(collided) > 0:
             # time.sleep(1)
@@ -132,6 +133,7 @@ class Goomba(pygame.sprite.Sprite):
             self.walk_frame = 0
         else:
             self.walk_frame += 1
+        return flag
 
     def terminate(self):
         """
@@ -241,30 +243,30 @@ class Koopa(pygame.sprite.Sprite):
         None
 
         Returns:
-        None
+        True if the Koopa collided with the player
         """
+        flag = False
         self.rect.center = self.body.position[0] * \
             box_to_world_ratio, HEIGHT - \
             self.body.position[1] * box_to_world_ratio
         collided = pygame.sprite.spritecollide(self, wallGroup, False)
         player_collision = pygame.sprite.spritecollide(self, players, False)
         if len(player_collision) > 0:
-            print('player collision occured.')
             for player in players:
                 if (player.is_jumping or not player.on_ground) and not self.isInShell:
                     self.hideInShell()
                     self.time_before_kick = pygame.time.get_ticks()
+                    flag = True
                 elif (player.is_jumping or not player.on_ground) and self.isInShell and pygame.time.get_ticks() - self.time_before_kick >= 100:
                     force = 1
                     if player.LEFT_KEY:
                         force *= -1
                     self.kickedInShell(force)
+                    flag = True
                 else:
-                    print("Mario hit by goomba")
-                    player.loseHealth()
+                    player.lose_health()
 
         if len(collided) > 0:
-            print('collision with Wall OCCURRED')
             # time.sleep(1)
             self.changeDirection()
 
@@ -293,6 +295,7 @@ class Koopa(pygame.sprite.Sprite):
         else:
             self.image = KOOPA_SPRITE[2]
             self.body.linearVelocity = Box2D.b2Vec2(0, 0)
+        return flag
 
     def terminate(self):
         """

@@ -47,7 +47,7 @@ class Display:
         koopa_group = pg.sprite.Group()
         koopa_group.add(koopa)
         wall_group = pg.sprite.Group()
-        goomba1 = Goomba(1700, 180, Display.world)
+        goomba1 = Goomba(1000, 180, Display.world)
         goomba_group = pg.sprite.Group()
         goomba_group.add(goomba1)
 
@@ -100,8 +100,12 @@ class Display:
                 # draw map, enemies, then player
                 self.map.draw_map(self.canvas, (-self.x_offset, 0))
                 for koopa in koopa_group:
+                    if koopa.update(wall_group, self.players):
+                        player.bounce_off_enemy()
                     koopa.draw(self.canvas, self.x_offset)
                 for goomba in goomba_group:
+                    if goomba.update(wall_group, koopa_group, self.players):
+                        player.bounce_off_enemy()
                     goomba.draw(self.canvas, self.x_offset)
 
                 player.draw(self.canvas, self.x_offset)

@@ -6,11 +6,10 @@ from components.spritesheet import *
 
 class Power(Enum):
     """An enum to represent the size of the player."""
+    DEAD = -1
     SMALL = 0
     BIG = 1
-    BIG_STAR = 2
-    FIRE = 3
-    FIRE_STAR = 4
+    FIRE = 2
 
 
 class State(Enum):
@@ -28,7 +27,7 @@ class Player(pg.sprite.Sprite):
         """Constructor to create the Player Object."""
         super().__init__()
         self.player_state = State.IDLE
-        self.player_size = Power.SMALL
+        self.player_size = Power.FIRE
         self.sprites = []
         self.LEFT_KEY, self.RIGHT_KEY, self.RUN_KEY, self.FACING_RIGHT = False, False, False, True
         self.is_jumping, self.on_ground = False, False
@@ -43,8 +42,10 @@ class Player(pg.sprite.Sprite):
         self.frame_count = 0
         self.image = None
         self.rect = pg.Rect(0, 0, 32, 32)
-        self.calcPlayerImage()
-        self.rect = pg.Rect(self.position[0], self.position[1], 32, 32)
+        self.calc_player_image()
+        self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * 2)
+        self.jump_cooldown = 0
+        self.invincibility = 0
 
     def draw(self, surface, offset):
         """Method to draw the player to the screen.
@@ -57,23 +58,38 @@ class Player(pg.sprite.Sprite):
         """
         surface.blit(self.image, (self.rect.x - offset, self.rect.y))
 
-    def loseHealth(self):
-
+    def lose_health(self):
+        if self.invincibility <= 0:
+            self.power_decrease()
+            self.invincibility = 90
         pass
+
+    def power_decrease(self):
+        if self.player_size == Power.FIRE:
+            self.player_size = Power.BIG
+        elif self.player_size == Power.BIG:
+            self.player_size = Power.SMALL
+            self.rect = pg.Rect(self.position[0], self.position[1], 32, 32)
+        elif self.player_size == Power.SMALL:
+            self.player_size = Power.DEAD
 
     def update(self, dt, tiles, min_x):
         self.frame_count += 1
+        self.jump_cooldown -= 1
+        self.invincibility -= 1
         self.horizontal_movement(dt, min_x)
-        self.checkCollisionsx(tiles)
+        self.check_collisions_x(tiles)
         self.vertical_movement(dt)
-        self.checkCollisionsy(tiles)
-        self.calcPlayerImage()
+        self.check_collisions_y(tiles)
+        self.calc_player_image()
 
     def horizontal_movement(self, dt, min_x):
         self.acceleration.x = 0
         if not self.is_jumping:
             self.player_state = State.IDLE
-        if self.LEFT_KEY:
+        if self.LEFT_KEY and self.RIGHT_KEY:
+            pass
+        elif self.LEFT_KEY:
             self.acceleration.x -= self.run_speed if self.RUN_KEY else self.walk_speed
 
             if not self.is_jumping:
@@ -123,7 +139,7 @@ class Player(pg.sprite.Sprite):
     # my_spritesheet.parse_sprite('fm4'),
     # my_spritesheet.parse_sprite('fm5'),
     # my_spritesheet.parse_sprite('fm4'),
-    def calcPlayerImage(self):
+    def calc_player_image(self):
         ratio = 1
         if self.player_size == Power.SMALL:
             self.sprites = MARIO_S_SPRITES
@@ -149,11 +165,20 @@ class Player(pg.sprite.Sprite):
         # self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * ratio)
 
     def jump(self):
-        if self.on_ground:
+        if self.on_ground and self.jump_cooldown < 0:
             self.player_state = State.JUMPING
             self.is_jumping = True
             self.velocity.y -= 13
             self.on_ground = False
+            self.jump_cooldown = 15
+
+    def bounce_off_enemy(self):
+        if self.jump_cooldown < 0:
+            self.player_state = State.JUMPING
+            self.is_jumping = True
+            self.velocity.y -= 13
+            self.on_ground = False
+            self.jump_cooldown = 15
 
     def get_hits(self, tiles):
         hits = []
@@ -162,7 +187,7 @@ class Player(pg.sprite.Sprite):
                 hits.append(tile)
         return hits
 
-    def checkCollisionsx(self, tiles):
+    def check_collisions_x(self, tiles):
         collisions = self.get_hits(tiles)
         for tile in collisions:
             if self.velocity.x > 0:  # Hit tile moving right
@@ -172,7 +197,7 @@ class Player(pg.sprite.Sprite):
                 self.position.x = tile.rect.right
                 self.rect.x = self.position.x
 
-    def checkCollisionsy(self, tiles):
+    def check_collisions_y(self, tiles):
         self.on_ground = False
         self.rect.bottom += 1
         collisions = self.get_hits(tiles)

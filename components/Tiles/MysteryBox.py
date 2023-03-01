@@ -1,5 +1,6 @@
 import pygame
 from components.Tiles.DynamicTile import DynamicTile
+from components.constants import FRAME_LIMIT
 
 # Drawable, Updateable
 class MysteryBoxTile(DynamicTile):
@@ -16,7 +17,7 @@ class MysteryBoxTile(DynamicTile):
     def update(self):
         if self.collided:
             self.imageIndex = 6
-        elif self.fadeFrame == 10:
+        elif self.fadeFrame == (FRAME_LIMIT/3):
             self.imageIndex = (self.imageIndex + 1) % 6
             self.fadeFrame = 0
         self.fadeFrame += 1

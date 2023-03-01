@@ -52,16 +52,18 @@ class TileMap():
                                  y * self.tile_size, self.spritesheet)
                     tiles.append(groundTile)
                     self.staticGroup.add(groundTile)
+                    
                 elif tile == '30':
                     brickTile = BrickTile('brick', x * self.tile_size,
                                  y * self.tile_size, self.spritesheet)
                     tiles.append(brickTile)
                     self.dynamicGroup.add(brickTile)
+
                 elif tile == '25':
                     boxTile = StaticTile('box', x * self.tile_size,
                                  y * self.tile_size, self.spritesheet)
                     tiles.append(boxTile)
-                    self.staticGroup.add(brickTile)
+                    self.staticGroup.add(boxTile)
 
                     # Move to next tile in current row
                 x += 1

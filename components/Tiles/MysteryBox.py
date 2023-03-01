@@ -17,7 +17,7 @@ class MysteryBoxTile(DynamicTile):
     def update(self):
         if self.collided:
             self.imageIndex = 6
-        elif self.fadeFrame == (FRAME_LIMIT/3):
+        elif self.fadeFrame == (FRAME_LIMIT):
             self.imageIndex = (self.imageIndex + 1) % 6
             self.fadeFrame = 0
         self.fadeFrame += 1

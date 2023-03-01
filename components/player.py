@@ -1,7 +1,8 @@
 import pygame as pg
-from components.constants import RESOLUTION
 from enum import Enum
 from components.spritesheet import *
+from components.Tiles.DynamicTile import DynamicTile
+from components.Tiles.MysteryBox import MysteryBoxTile
 
 
 class Power(Enum):
@@ -28,6 +29,7 @@ class Player(pg.sprite.Sprite):
         super().__init__()
         self.player_state = State.IDLE
         self.player_size = Power.FIRE
+        self.score = 0
         self.sprites = []
         self.LEFT_KEY, self.RIGHT_KEY, self.RUN_KEY, self.FACING_RIGHT = False, False, False, True
         self.is_jumping, self.on_ground = False, False
@@ -212,3 +214,7 @@ class Player(pg.sprite.Sprite):
                 self.velocity.y = 0
                 self.position.y = tile.rect.bottom + self.rect.h
                 self.rect.bottom = self.position.y
+                if isinstance(tile, DynamicTile):
+                    increaseScore = tile.collide() and isinstance(tile, MysteryBoxTile)
+                    self.score += 100 if increaseScore else 0
+                    print('SCORE: ' + str(self.score))

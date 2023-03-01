@@ -1,12 +1,12 @@
 import pygame as pg
 import sys
-from pygame import key
 from pygame.locals import *
 import components.constants as constants
 import components.spritesheet as spritesheet
-from components.tiles import *
+from components.Tiles.TileMap import TileMap
 from components.player import Player
 from components.Enemies import Koopa, Goomba
+import Box2D
 
 
 class Display:
@@ -59,25 +59,25 @@ class Display:
 
             for player in self.players:
                 for event in pg.event.get():
-                    if event.type == pygame.KEYDOWN:
-                        if event.key == pygame.K_a:
+                    if event.type == pg.KEYDOWN:
+                        if event.key == pg.K_a:
                             player.LEFT_KEY = True
-                        elif event.key == pygame.K_d:
+                        elif event.key == pg.K_d:
                             player.RIGHT_KEY = True
-                        elif event.key == pygame.K_w:
+                        elif event.key == pg.K_w:
                             player.jump()
-                        elif event.key == pygame.K_LSHIFT:
+                        elif event.key == pg.K_LSHIFT:
                             player.RUN_KEY = True
 
-                    if event.type == pygame.KEYUP:
-                        if event.key == pygame.K_a:
+                    if event.type == pg.KEYUP:
+                        if event.key == pg.K_a:
                             player.LEFT_KEY = False
-                        elif event.key == pygame.K_d:
+                        elif event.key == pg.K_d:
                             player.RIGHT_KEY = False
-                        elif event.key == pygame.K_w:
+                        elif event.key == pg.K_w:
                             if player.is_jumping:
                                 player.velocity.y *= .25
-                        elif event.key == pygame.K_LSHIFT:
+                        elif event.key == pg.K_LSHIFT:
                             player.RUN_KEY = False
 
                     if event.type == QUIT:

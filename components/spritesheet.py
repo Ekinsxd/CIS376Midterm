@@ -100,25 +100,16 @@ TILE_SPRITES = {
     "brick": tile_sheet.parse_sprite('brick'),
     "ground": tile_sheet.parse_sprite('ground'),
     "box": tile_sheet.parse_sprite('box'),
-    "mbox": tile_sheet.parse_sprite('mbox'),
+    "mbox":  [
+        tile_sheet.parse_sprite('mbox1'),
+        tile_sheet.parse_sprite('mbox2'),
+        tile_sheet.parse_sprite('mbox3'),
+        tile_sheet.parse_sprite('mbox4'),
+        tile_sheet.parse_sprite('mbox5'),
+        tile_sheet.parse_sprite('mbox6'),
+    ],
+    "blank": tile_sheet.parse_sprite('blanktile'),
     "coin": tile_sheet.parse_sprite('coin'),
     "pipe": tile_sheet.parse_sprite('pipe'),
     "flag": tile_sheet.parse_sprite('flag')
 }
-# running = True
-# i = 0
-# print(i + 1)
-# while running:
-#     for event in pygame.event.get():
-#         if event.type == pygame.QUIT:
-#             running = False
-#         if event.type == pygame.KEYDOWN:
-#             if event.key == pygame.K_SPACE:
-#                 i += 1
-
-#     canvas.fill((255, 255, 255))
-#     canvas.blit(MARIO_M_SPRITES[i % len(MARIO_M_SPRITES)], (32, 32))
-#     window.blit(canvas, (0, 0))
-#     pygame.display.update()
-
-# pygame.quit()

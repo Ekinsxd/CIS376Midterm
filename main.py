@@ -1,6 +1,4 @@
-import pygame
 import components.mainScene as mainScene
-
 
 def main():
     display = mainScene.Display()

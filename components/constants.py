@@ -1,4 +1,4 @@
-FRAME_LIMIT = 60
+FRAME_LIMIT = 30
 """Max Frame Rate of the program"""
 RESOLUTION = (800, 600)
 """Resolution of the Display in (width, height)"""

@@ -257,7 +257,7 @@ class Koopa(Enemy):
                     flag = True
                 else:
                     player.lose_health()
-                    flag = False
+                    flag = True
 
         if len(collided) > 0:
             # time.sleep(1)

@@ -18,8 +18,64 @@ gravity = Box2D.b2Vec2(0.5, -10.0)
 WIDTH = constants.RESOLUTION[0]
 HEIGHT = constants.RESOLUTION[1]
 
+class Enemy(pygame.sprite.Sprite):
+        
+        def __init__(self):
+            super().__init__()
 
-class Goomba(pygame.sprite.Sprite):
+            self.image_index = 0
+            """What image to get for self.image."""
+
+            self.isDead = False
+            """Helps determine when to display a different sprite."""
+
+            self.toRemove = False
+            """Helps to determine if to remove enemy."""
+
+            self.count = 0
+            """Helps to determine when to remove after being dead."""
+
+            self.walk_frame = 0
+            """Helps to determine when to change the image of the enemy."""
+
+            self.move_left = True
+            """Helps determine where to move."""
+
+            self.stomp_sound = pygame.mixer.Sound('assets/stomp.wav')
+
+            self.dirty = 2
+        
+        def terminate(self):
+            """
+            Kills this enemy.
+
+            Params:
+            None
+
+            Returns:
+            None
+
+            """
+            if not self.isDead:
+                self.isDead = True
+                self.stomp_sound.play()
+            self.image = self.sprite_source[2]
+    
+        def changeDirection(self):
+            """
+            Changes direction, this is a helper method to help with collision with a wall.
+
+            Params:
+            None
+
+            Returns:
+            None
+
+            """
+            self.move_left = not self.move_left
+
+
+class Goomba(Enemy):
     """A mushroom that is an enemy to the Player. 
     If a Goomba touches the player when the player is not in the air, the player dies or takes damage.
     If the player jumps on top of the Goomba, the Goomba dies."""
@@ -48,35 +104,14 @@ class Goomba(pygame.sprite.Sprite):
         self.physics_box = self.body.CreateFixture(fixDef)
         """For the Box2D physics collision box."""
 
-        self.dirty = 2
-
         self.image = GOOMBA_SPRITE[0]
         """The current image of the Goomba to be displayed."""
 
+        self.sprite_source= GOOMBA_SPRITE
+
         self.rect = self.image.get_rect()
-        # time.sleep(1)
         """The hitbox of the Goomba to determine Pybox collisions for game mechanics."""
-
-        self.image_index = 0
-        """What image to get for self.image."""
-
-        self.isDead = False
-        """Helps determine when to display a different sprite."""
-
-        self.toRemove = False
-        """Helps to determine when to remove the Goomba."""
-
-        self.count = 0
-        """Helps to determine when to remove this Goomba after being dead."""
-
-        self.walk_frame = 0
-        """Helps to determine when to change the image of the Goomba."""
-
-        self.move_left = True
-        """Helps determine where the Goomba should move."""
-
-        # Inital movement of Goomba.
-        self.body.linearVelocity = Box2D.b2Vec2(-1, 0)
+    
 
     def draw(self, surface, offset):
         surface.blit(self.image, (self.rect.x - offset, self.rect.y))
@@ -108,7 +143,6 @@ class Goomba(pygame.sprite.Sprite):
                     player.lose_health()
 
         if len(collided) > 0:
-            # time.sleep(1)
             self.changeDirection()
         if len(koopa_collided) != 0:
             if koopa_collided[0].isMovingShell:
@@ -124,47 +158,19 @@ class Goomba(pygame.sprite.Sprite):
             self.body.DestroyFixture(self.physics_box)
             self.kill()
         elif self.isDead:
-            self.image = GOOMBA_SPRITE[2]
+            self.image = self.sprite_source[2]
             self.toRemove = True
             self.count += 1
         elif self.walk_frame == 25:
             self.image_index = (self.image_index + 1) % 2
-            self.image = GOOMBA_SPRITE[self.image_index]
+            self.image = self.sprite_source[self.image_index]
             self.walk_frame = 0
         else:
             self.walk_frame += 1
         return flag
 
-    def terminate(self):
-        """
-        This causes the Goomba to get squished, and will remove the Goomba
-        from game eventually.
 
-        Params:
-        None
-
-        Returns:
-        None
-
-        """
-        self.isDead = True
-        self.image = GOOMBA_SPRITE[2]
-
-    def changeDirection(self):
-        """
-        Changes direction of Goomba, this is a helper method to help with collision with a wall.
-
-        Params:
-        None
-
-        Returns:
-        None
-
-        """
-        self.move_left = not self.move_left
-
-
-class Koopa(pygame.sprite.Sprite):
+class Koopa(Enemy):
     """A Turtle that is an enemy to the Player. 
     If a Koopa touches the player when the player is not in the air, the player dies or takes damage.
     If the player jumps on top of the Koopa, the Koopa hides in its shell.
@@ -203,24 +209,7 @@ class Koopa(pygame.sprite.Sprite):
         # time.sleep(1)
         """The hitbox of the Goomba to determine Pybox collisions for game mechanics."""
 
-        self.image_index = 0
-        """What image to get for self.image."""
-
-        self.isDead = False
-        """Helps determine when to display a different sprite."""
-
-        self.toRemove = False
-        """Helps to determine when to remove the Koopa."""
-
-        self.count = 0
-        """Helps to determine when to remove this Koopa after being dead."""
-
-        self.walk_frame = 0
-        """Helps to determine when to change the image of the Koopa."""
-
-        self.move_left = True
-        """Helps determine where the Koopa should move."""
-        self.body.linearVelocity = Box2D.b2Vec2(-1, 0)
+        self.sprite_source = KOOPA_SPRITE
 
         self.isInShell = False
         """If the Koopa is in its shell from being stepped on by the player."""
@@ -253,29 +242,31 @@ class Koopa(pygame.sprite.Sprite):
         player_collision = pygame.sprite.spritecollide(self, players, False)
         if len(player_collision) > 0:
             for player in players:
-                if (player.is_jumping or not player.on_ground) and not self.isInShell:
-                    self.hideInShell()
+                if (player.is_jumping and not player.on_ground) and not self.isInShell:
                     self.time_before_kick = pygame.time.get_ticks()
+                    player.invincibility = 10
+                    self.hideInShell()
                     flag = True
-                elif (player.is_jumping or not player.on_ground) and self.isInShell and pygame.time.get_ticks() - self.time_before_kick >= 100:
-                    force = 1
-                    if player.LEFT_KEY:
+                elif (player.is_jumping or not player.on_ground) and self.isInShell and pygame.time.get_ticks() - self.time_before_kick >= 10:
+                    player.invincibility = 10
+                    self.time_before_kick = pygame.time.get_ticks()
+                    force = -1
+                    if self.rect.collidepoint(player.rect.bottomright):
                         force *= -1
                     self.kickedInShell(force)
                     flag = True
                 else:
                     player.lose_health()
+                    flag = True
 
         if len(collided) > 0:
             # time.sleep(1)
             self.changeDirection()
 
-        if not self.isDead:
+        if not self.isDead and not self.isInShell:
             if self.move_left:
-                #self.body.ApplyForce(Box2D.b2Vec2(-0.1, 0), self.body.position, True)
                 self.body.linearVelocity = Box2D.b2Vec2(-1, 0)
             else:
-                #self.body.ApplyForce(Box2D.b2Vec2(0.1, 0), self.body.position, True)
                 self.body.linearVelocity = Box2D.b2Vec2(1, 0)
 
         if self.count == 5:
@@ -290,24 +281,12 @@ class Koopa(pygame.sprite.Sprite):
             self.walk_frame = 0
         elif not self.isInShell:
             self.walk_frame += 1
-        elif self.isInShell and self.isMovingShell:
-            self.body.linearVelocity = Box2D.b2Vec2(self.shell_direction, 0)
         else:
             self.image = KOOPA_SPRITE[2]
-            self.body.linearVelocity = Box2D.b2Vec2(0, 0)
+            self.body.linearVelocity = Box2D.b2Vec2(self.shell_direction, 0)
+
+
         return flag
-
-    def terminate(self):
-        """
-        Terminates the Koopa right away. This should be used when the player casts a fireball.
-
-        Params:
-        None
-
-        Returns:
-        None
-        """
-        self.isDead = True
 
     def hideInShell(self):
         """
@@ -320,6 +299,7 @@ class Koopa(pygame.sprite.Sprite):
         None
         """
         self.isInShell = True
+        self.stomp_sound.play()
         self.image = KOOPA_SPRITE[2]
 
     def kickedInShell(self, force):
@@ -334,13 +314,18 @@ class Koopa(pygame.sprite.Sprite):
         Returns:
         None
         """
-        if force < 0:
-            self.shell_direction *= -1
-        self.isMovingShell = True
+        if not self.isMovingShell:
+            self.shell_direction = 2
+
+            if force < 0:
+                self.shell_direction *= -1
+        else:
+            self.shell_direction = 0
+        
+        self.isMovingShell = not self.isMovingShell
 
     def changeDirection(self):
         self.shell_direction *= -1
-        self.body.linearVelocity = Box2D.b2Vec2(self.shell_direction, 0)
 
 
 """ Below is a self-contained test.

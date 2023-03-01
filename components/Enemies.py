@@ -13,66 +13,67 @@ sys.path.append('../')
 world_to_box_ratio = 1/100
 box_to_world_ratio = 100
 gravity = Box2D.b2Vec2(0.5, -10.0)
-#world = Box2D.b2World(gravity=gravity, doSleep=False)
+# world = Box2D.b2World(gravity=gravity, doSleep=False)
 
 WIDTH = constants.RESOLUTION[0]
 HEIGHT = constants.RESOLUTION[1]
 
+
 class Enemy(pygame.sprite.Sprite):
-        
-        def __init__(self):
-            super().__init__()
 
-            self.image_index = 0
-            """What image to get for self.image."""
+    def __init__(self):
+        super().__init__()
 
-            self.isDead = False
-            """Helps determine when to display a different sprite."""
+        self.image_index = 0
+        """What image to get for self.image."""
 
-            self.toRemove = False
-            """Helps to determine if to remove enemy."""
+        self.isDead = False
+        """Helps determine when to display a different sprite."""
 
-            self.count = 0
-            """Helps to determine when to remove after being dead."""
+        self.toRemove = False
+        """Helps to determine if to remove enemy."""
 
-            self.walk_frame = 0
-            """Helps to determine when to change the image of the enemy."""
+        self.count = 0
+        """Helps to determine when to remove after being dead."""
 
-            self.move_left = True
-            """Helps determine where to move."""
+        self.walk_frame = 0
+        """Helps to determine when to change the image of the enemy."""
 
-            self.stomp_sound = pygame.mixer.Sound('assets/stomp.wav')
+        self.move_left = True
+        """Helps determine where to move."""
 
-            self.dirty = 2
-        
-        def terminate(self):
-            """
-            Kills this enemy.
+        self.stomp_sound = pygame.mixer.Sound('assets/stomp.wav')
 
-            Params:
-            None
+        self.dirty = 2
 
-            Returns:
-            None
+    def terminate(self):
+        """
+        Kills this enemy.
 
-            """
-            if not self.isDead:
-                self.isDead = True
-                self.stomp_sound.play()
-            self.image = self.sprite_source[2]
-    
-        def changeDirection(self):
-            """
-            Changes direction, this is a helper method to help with collision with a wall.
+        Params:
+        None
 
-            Params:
-            None
+        Returns:
+        None
 
-            Returns:
-            None
+        """
+        if not self.isDead:
+            self.isDead = True
+            self.stomp_sound.play()
+        self.image = self.sprite_source[2]
 
-            """
-            self.move_left = not self.move_left
+    def changeDirection(self):
+        """
+        Changes direction, this is a helper method to help with collision with a wall.
+
+        Params:
+        None
+
+        Returns:
+        None
+
+        """
+        self.move_left = not self.move_left
 
 
 class Goomba(Enemy):
@@ -107,11 +108,10 @@ class Goomba(Enemy):
         self.image = GOOMBA_SPRITE[0]
         """The current image of the Goomba to be displayed."""
 
-        self.sprite_source= GOOMBA_SPRITE
+        self.sprite_source = GOOMBA_SPRITE
 
         self.rect = self.image.get_rect()
         """The hitbox of the Goomba to determine Pybox collisions for game mechanics."""
-    
 
     def draw(self, surface, offset):
         surface.blit(self.image, (self.rect.x - offset, self.rect.y))
@@ -257,7 +257,7 @@ class Koopa(Enemy):
                     flag = True
                 else:
                     player.lose_health()
-                    flag = True
+                    flag = False
 
         if len(collided) > 0:
             # time.sleep(1)
@@ -284,7 +284,6 @@ class Koopa(Enemy):
         else:
             self.image = KOOPA_SPRITE[2]
             self.body.linearVelocity = Box2D.b2Vec2(self.shell_direction, 0)
-
 
         return flag
 
@@ -321,7 +320,7 @@ class Koopa(Enemy):
                 self.shell_direction *= -1
         else:
             self.shell_direction = 0
-        
+
         self.isMovingShell = not self.isMovingShell
 
     def changeDirection(self):

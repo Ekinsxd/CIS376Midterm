@@ -6,6 +6,7 @@ import components.spritesheet as spritesheet
 from components.Tiles.TileMap import TileMap
 from components.player import Player
 from components.Enemies import Koopa, Goomba
+from components.ScoreLabel import ScoreLabel
 import Box2D
 
 
@@ -31,6 +32,7 @@ class Display:
         self.players = pg.sprite.Group()
         self.players.add(Player())
         self.map = TileMap('assets/mario_world.csv', spritesheet.TILE_SPRITES)
+        self.scoreLabel = ScoreLabel()
         self.x_offset = 0
 
     def run(self):
@@ -92,9 +94,9 @@ class Display:
                 Display.world.Step(Display.time_step,
                                    Display.vel_iters, Display.pos_iters)
                 player.update(dt, self.map.tiles, self.x_offset)
-
                 self.canvas.fill((0, 180, 240))
                 self.map.load_map()
+                self.scoreLabel.draw(player.score, self.canvas)
                 koopa_group.update(wall_group, self.players)
                 goomba_group.update(wall_group, koopa_group, self.players)
                 # draw map, enemies, then player

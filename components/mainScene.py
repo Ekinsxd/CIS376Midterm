@@ -95,16 +95,16 @@ class Display:
                 Display.world.Step(Display.time_step,
                                    Display.vel_iters, Display.pos_iters)
                 player.update(dt, self.map.tiles, self.x_offset)
-                
+
                 self.canvas.fill(constants.SKY_BLUE)
                 self.map.load_map()
-                
+
                 koopa_group.update(wall_group, self.players)
                 goomba_group.update(wall_group, koopa_group, self.players)
 
                 # draw map, enemies, then player
                 self.map.draw_map(self.canvas, (-self.x_offset, 0))
-                
+
                 # ENEMIES
                 for koopa in koopa_group:
                     if koopa.update(wall_group, self.players):
@@ -116,7 +116,8 @@ class Display:
                     goomba.draw(self.canvas, self.x_offset)
 
                 player.draw(self.canvas, self.x_offset)
-                self.scoreLabel.draw(player.score, self.canvas)
+                self.scoreLabel.draw(
+                    self.canvas, player.score, player.num_lives, player.start_time)
 
             self.screen.blit(self.canvas, (0, 0))
             pg.display.update()

@@ -11,9 +11,8 @@ class DynamicTile(Tile):
         self.collided = False
         super().__init__(image, x, y, spritesheet)
 
-
-    def collide(self):
-        if (self.collided):
+    def collide(self, playerBig=None):
+        if self.collided:
             return False
         self.collided = True
         return True

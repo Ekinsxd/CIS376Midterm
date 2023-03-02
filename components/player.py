@@ -215,6 +215,5 @@ class Player(pg.sprite.Sprite):
                 self.position.y = tile.rect.bottom + self.rect.h
                 self.rect.bottom = self.position.y
                 if isinstance(tile, DynamicTile):
-                    increaseScore = tile.collide() and isinstance(tile, MysteryBoxTile)
+                    increaseScore = tile.collide(self.player_size) and isinstance(tile, MysteryBoxTile)
                     self.score += 100 if increaseScore else 0
-                    print('SCORE: ' + str(self.score))

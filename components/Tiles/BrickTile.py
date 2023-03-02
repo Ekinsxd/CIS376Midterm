@@ -1,16 +1,20 @@
-import pygame
 from components.Tiles.DynamicTile import DynamicTile
-
+from components.constants import SKY_BLUE
 
 # Drawable, Updateable
 class BrickTile(DynamicTile):
     def __init__(self, image, x, y, spritesheet):
-        self.sprites = [spritesheet[image]]
-        self.sprites.append(spritesheet['blank'])
-        self.image = pygame.transform.scale(self.sprites[0], (32, 32))
-        super().__init__(None, x, y, None)
+        super().__init__(image, x, y, spritesheet)
 
 
-    def update(self):
-        if self.collided:
-            self.image = pygame.transform.scale(self.sprites[1], (32, 32))
+    def update(self, tiles):
+        if self.collided and tiles.count(self) > 0:
+            self.image.fill(SKY_BLUE)
+            tiles.remove(self)
+
+
+    def collide(self, playerBig=None):
+        if (not self.collided) and playerBig != None:
+            self.collided = True if playerBig else False
+        return False
+

@@ -14,7 +14,7 @@ class MysteryBoxTile(DynamicTile):
         super().__init__(None, x, y, None)
 
 
-    def update(self):
+    def update(self, tiles):
         if self.collided:
             self.imageIndex = 6
         elif self.fadeFrame == (FRAME_LIMIT):
@@ -22,4 +22,5 @@ class MysteryBoxTile(DynamicTile):
             self.fadeFrame = 0
         self.fadeFrame += 1
         self.image = pygame.transform.scale(self.sprites[self.imageIndex], (32, 32))
+
 

@@ -85,6 +85,7 @@ class Display:
                     if event.type == QUIT:
                         pg.quit()
                         sys.exit()
+
                 if player.rect.x > self.x_offset + constants.RESOLUTION[0] / 2 and \
                         self.x_offset < player.position.x:
                     self.x_offset = player.position.x - \
@@ -94,13 +95,17 @@ class Display:
                 Display.world.Step(Display.time_step,
                                    Display.vel_iters, Display.pos_iters)
                 player.update(dt, self.map.tiles, self.x_offset)
-                self.canvas.fill((0, 180, 240))
+                
+                self.canvas.fill(constants.SKY_BLUE)
                 self.map.load_map()
-                self.scoreLabel.draw(player.score, self.canvas)
+                
                 koopa_group.update(wall_group, self.players)
                 goomba_group.update(wall_group, koopa_group, self.players)
+
                 # draw map, enemies, then player
                 self.map.draw_map(self.canvas, (-self.x_offset, 0))
+                
+                # ENEMIES
                 for koopa in koopa_group:
                     if koopa.update(wall_group, self.players):
                         player.bounce_off_enemy()
@@ -111,7 +116,7 @@ class Display:
                     goomba.draw(self.canvas, self.x_offset)
 
                 player.draw(self.canvas, self.x_offset)
-                # print(player.position)
+                self.scoreLabel.draw(player.score, self.canvas)
 
             self.screen.blit(self.canvas, (0, 0))
             pg.display.update()

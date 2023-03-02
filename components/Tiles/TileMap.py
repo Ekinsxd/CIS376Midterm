@@ -18,14 +18,18 @@ class TileMap():
         self.map_surface.set_colorkey((0, 0, 0))
         self.load_map()
 
+
     def draw_map(self, surface, camera):
         surface.blit(self.map_surface, camera)
 
+
     def load_map(self):
-        self.dynamicGroup.update()
+        self.dynamicGroup.update(self.tiles)
         self.dynamicGroup.draw(self.map_surface)
         self.staticGroup.draw(self.map_surface)
 
+
+    # Only called for initial start of game
     def read_csv(self, filename):
         map = []
         with open(os.path.join(filename)) as data:
@@ -34,6 +38,8 @@ class TileMap():
                 map.append(list(row))
         return map
 
+
+    # Only called for initial start of game
     def load_tiles(self, filename):
         tiles = []
         map = self.read_csv(filename)

@@ -3,6 +3,7 @@ from enum import Enum
 from components.spritesheet import *
 from components.Tiles.DynamicTile import DynamicTile
 from components.Tiles.MysteryBox import MysteryBoxTile
+import time
 
 
 class Power(Enum):
@@ -48,6 +49,9 @@ class Player(pg.sprite.Sprite):
         self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * 2)
         self.jump_cooldown = 0
         self.invincibility = 0
+        self.num_lives = 3
+        # time mario has been alive
+        self.start_time = time.time()
 
     def draw(self, surface, offset):
         """Method to draw the player to the screen.
@@ -215,5 +219,6 @@ class Player(pg.sprite.Sprite):
                 self.position.y = tile.rect.bottom + self.rect.h
                 self.rect.bottom = self.position.y
                 if isinstance(tile, DynamicTile):
-                    increaseScore = tile.collide(self.player_size) and isinstance(tile, MysteryBoxTile)
+                    increaseScore = tile.collide(
+                        self.player_size) and isinstance(tile, MysteryBoxTile)
                     self.score += 100 if increaseScore else 0

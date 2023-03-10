@@ -1,10 +1,6 @@
-#!/usr/bin/env python
-# Make sure the local python is anaconda and that the pybox2d environment is activated
 import Box2D
 import pygame
 from components.spritesheet import *
-import components.spritesheet as spritesheet
-import time
 import components.constants as constants
 import sys
 sys.path.append('../')
@@ -13,7 +9,6 @@ sys.path.append('../')
 world_to_box_ratio = 1/100
 box_to_world_ratio = 100
 gravity = Box2D.b2Vec2(0.5, -10.0)
-# world = Box2D.b2World(gravity=gravity, doSleep=False)
 
 WIDTH = constants.RESOLUTION[0]
 HEIGHT = constants.RESOLUTION[1]

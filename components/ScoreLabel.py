@@ -1,5 +1,5 @@
 import pygame
-from components.constants import RESOLUTION  # (800, 600)
+from components.constants import RESOLUTION, FONT_DIR  # (800, 600)
 import time
 from components.spritesheet import MARIO_S_SPRITES
 
@@ -7,8 +7,7 @@ from components.spritesheet import MARIO_S_SPRITES
 class ScoreLabel(pygame.sprite.Sprite):
     def __init__(self):
         pygame.sprite.Sprite.__init__(self)
-        self.font = pygame.font.Font(
-            'assets/Press_Start_2P/PressStart2P-Regular.ttf', 20)
+        self.font = pygame.font.Font(FONT_DIR, 20)
         self.mario_image = pygame.transform.scale(MARIO_S_SPRITES[0], (24, 24))
         self.clock_image = pygame.transform.scale(
             pygame.image.load('assets/clock.png'), (24, 24))

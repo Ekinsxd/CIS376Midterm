@@ -3,6 +3,7 @@ from enum import Enum
 from components.spritesheet import *
 from components.Tiles.DynamicTile import DynamicTile
 from components.Tiles.MysteryBox import MysteryBoxTile
+from components.constants import RESOLUTION
 import time
 
 
@@ -64,11 +65,13 @@ class Player(pg.sprite.Sprite):
         """
         surface.blit(self.image, (self.rect.x - offset, self.rect.y))
 
+
     def lose_health(self):
         if self.invincibility <= 0:
             self.power_decrease()
             self.invincibility = 90
         pass
+
 
     def power_decrease(self):
         if self.player_size == Power.FIRE:
@@ -79,6 +82,7 @@ class Player(pg.sprite.Sprite):
         elif self.player_size == Power.SMALL:
             self.player_size = Power.DEAD
 
+
     def update(self, dt, tiles, min_x):
         self.frame_count += 1
         self.jump_cooldown -= 1
@@ -88,6 +92,7 @@ class Player(pg.sprite.Sprite):
         self.vertical_movement(dt)
         self.check_collisions_y(tiles)
         self.calc_player_image()
+
 
     def horizontal_movement(self, dt, min_x):
         self.acceleration.x = 0
@@ -122,6 +127,7 @@ class Player(pg.sprite.Sprite):
             self.position.x += add_pos
             self.rect.x = self.position.x
 
+
     def vertical_movement(self, dt):
         self.velocity.y += self.acceleration.y * dt
         if self.velocity.y > 7:
@@ -133,28 +139,25 @@ class Player(pg.sprite.Sprite):
         if abs(self.velocity.y) < 0.2 and self.on_ground:
             self.is_jumping = False
 
+        if self.rect.bottom > RESOLUTION[0]:
+            self.player_size = Power.DEAD
+
+
     def limit_velocity(self, max_vel):
         self.velocity.x = max(-max_vel, min(self.velocity.x, max_vel))
         if abs(self.velocity.x) < .01:
             self.velocity.x = 0
 
-    # my_spritesheet.parse_sprite('fm7'),  # idle
-    # my_spritesheet.parse_sprite('fm1'),  # jump
-    # my_spritesheet.parse_sprite('fm6'),  # duck
-    # my_spritesheet.parse_sprite('fm3'),
-    # my_spritesheet.parse_sprite('fm4'),
-    # my_spritesheet.parse_sprite('fm5'),
-    # my_spritesheet.parse_sprite('fm4'),
+
     def calc_player_image(self):
-        ratio = 1
         if self.player_size == Power.SMALL:
             self.sprites = MARIO_S_SPRITES
         elif self.player_size == Power.BIG:
             self.sprites = MARIO_M_SPRITES
-            ratio = 2
         elif self.player_size == Power.FIRE:
             self.sprites = MARIO_FIRE_SPRITES
-            ratio = 2
+        elif self.player_size == Power.DEAD:
+            self.num_lives -= 1
 
         if self.player_state == State.IDLE:
             self.image = self.sprites[0]
@@ -168,7 +171,15 @@ class Player(pg.sprite.Sprite):
         if self.FACING_RIGHT:
             self.image = pg.transform.flip(self.image, True, False)
 
-        # self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * ratio)
+
+    def reset(self):
+        self.player_state = State.IDLE
+        self.player_size = Power.FIRE
+        self.position = pg.math.Vector2(0, 0)
+        self.velocity = pg.math.Vector2(0, 0)
+        self.acceleration = pg.math.Vector2(0, self.gravity)
+        self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * 2)
+        
 
     def jump(self):
         if self.on_ground and self.jump_cooldown < 0:
@@ -178,6 +189,7 @@ class Player(pg.sprite.Sprite):
             self.on_ground = False
             self.jump_cooldown = 15
 
+
     def bounce_off_enemy(self):
         if self.jump_cooldown < 0:
             self.player_state = State.JUMPING
@@ -186,12 +198,14 @@ class Player(pg.sprite.Sprite):
             self.on_ground = False
             self.jump_cooldown = 15
 
+
     def get_hits(self, tiles):
         hits = []
         for tile in tiles:
             if self.rect.colliderect(tile):
                 hits.append(tile)
         return hits
+
 
     def check_collisions_x(self, tiles):
         collisions = self.get_hits(tiles)
@@ -202,6 +216,7 @@ class Player(pg.sprite.Sprite):
             elif self.velocity.x < 0:  # Hit tile moving left
                 self.position.x = tile.rect.right
                 self.rect.x = self.position.x
+
 
     def check_collisions_y(self, tiles):
         self.on_ground = False

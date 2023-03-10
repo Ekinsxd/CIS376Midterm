@@ -4,7 +4,7 @@ from pygame.locals import *
 import components.constants as constants
 import components.spritesheet as spritesheet
 from components.Tiles.TileMap import TileMap
-from components.player import Player
+from components.player import Player, Power
 from components.Enemies import Koopa, Goomba
 from components.ScoreLabel import ScoreLabel
 import Box2D
@@ -34,6 +34,8 @@ class Display:
         self.map = TileMap('assets/mario_world.csv', spritesheet.TILE_SPRITES)
         self.scoreLabel = ScoreLabel()
         self.x_offset = 0
+        self.gameOver = False
+
 
     def run(self):
         """A method that contains the main game loop.
@@ -53,8 +55,7 @@ class Display:
         goomba_group = pg.sprite.Group()
         goomba_group.add(goomba1)
 
-        while True:  # main game loop
-
+        while not self.gameOver:  # main game loop
             # Gets and deals with events.
             dt = self.clock.tick(
                 constants.FRAME_LIMIT) * .001 * 60
@@ -121,3 +122,26 @@ class Display:
 
             self.screen.blit(self.canvas, (0, 0))
             pg.display.update()
+
+            if player.num_lives == 0:
+                self.endGame()
+            elif player.player_size == Power.DEAD:
+                self.x_offset = 0
+                player.reset()
+
+        while self.gameOver:
+            for event in pg.event.get():
+                 if event.type == QUIT:
+                    pg.quit()
+                    sys.exit()
+            self.screen.blit(self.canvas, (0, 0))
+            pg.display.update()
+
+
+    def endGame(self):
+        self.canvas.fill(constants.BLACK)
+        font = pg.font.Font(constants.FONT_DIR, 20)
+        gameover_label = font.render("GAME OVER", True, (255, 255, 255))
+        width, height = font.size("GAME OVER")
+        self.canvas.blit(gameover_label, (constants.RESOLUTION[0]*0.5 - width/2, constants.RESOLUTION[1]*0.5 - height/2))
+        self.gameOver = True

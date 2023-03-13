@@ -7,6 +7,7 @@ from components.Tiles.TileMap import TileMap
 from components.player import Player, Power
 from components.Enemies import Koopa, Goomba
 from components.ScoreLabel import ScoreLabel
+from components.Background.backgroundMap import BackgroundMap
 import Box2D
 
 
@@ -32,10 +33,13 @@ class Display:
         self.players = pg.sprite.Group()
         self.players.add(Player())
         self.map = TileMap('assets/mario_world.csv', spritesheet.TILE_SPRITES)
+        self.bg = BackgroundMap(
+            'assets/mario_world.csv', spritesheet.BACKGROUND_SPRITES)
         self.scoreLabel = ScoreLabel()
         self.x_offset = 0
         self.gameOver = False
-
+        self.backgroundSprites = pg.sprite.Group()
+        self.winner_animation = False
 
     def run(self):
         """A method that contains the main game loop.
@@ -61,31 +65,41 @@ class Display:
                 constants.FRAME_LIMIT) * .001 * 60
 
             for player in self.players:
-                for event in pg.event.get():
-                    if event.type == pg.KEYDOWN:
-                        if event.key == pg.K_a:
-                            player.LEFT_KEY = True
-                        elif event.key == pg.K_d:
-                            player.RIGHT_KEY = True
-                        elif event.key == pg.K_w:
-                            player.jump()
-                        elif event.key == pg.K_LSHIFT:
-                            player.RUN_KEY = True
 
-                    if event.type == pg.KEYUP:
-                        if event.key == pg.K_a:
-                            player.LEFT_KEY = False
-                        elif event.key == pg.K_d:
-                            player.RIGHT_KEY = False
-                        elif event.key == pg.K_w:
-                            if player.is_jumping:
-                                player.velocity.y *= .25
-                        elif event.key == pg.K_LSHIFT:
-                            player.RUN_KEY = False
+                if not player.player_win:
+                    for event in pg.event.get():
+                        # ignore input if won.
+                        if event.type == pg.KEYDOWN:
+                            if event.key == pg.K_a:
+                                player.LEFT_KEY = True
+                            elif event.key == pg.K_d:
+                                player.RIGHT_KEY = True
+                            elif event.key == pg.K_w:
+                                player.jump()
+                            elif event.key == pg.K_LSHIFT:
+                                player.RUN_KEY = True
 
-                    if event.type == QUIT:
-                        pg.quit()
-                        sys.exit()
+                        if event.type == pg.KEYUP:
+                            if event.key == pg.K_a:
+                                player.LEFT_KEY = False
+                            elif event.key == pg.K_d:
+                                player.RIGHT_KEY = False
+                            elif event.key == pg.K_w:
+                                if player.is_jumping:
+                                    player.velocity.y *= .25
+                            elif event.key == pg.K_LSHIFT:
+                                player.RUN_KEY = False
+
+                        if event.type == QUIT:
+                            pg.quit()
+                            sys.exit()
+
+                else:
+                    self.winner_animation = True
+                    if player.winning_animation():
+                        self.gameOver = True
+                        self.endGame()
+                        print("done?")
 
                 if player.rect.x > self.x_offset + constants.RESOLUTION[0] / 2 and \
                         self.x_offset < player.position.x:
@@ -98,12 +112,14 @@ class Display:
                 player.update(dt, self.map.tiles, self.x_offset)
 
                 self.canvas.fill(constants.SKY_BLUE)
+                self.bg.load_map()
                 self.map.load_map()
 
                 koopa_group.update(wall_group, self.players)
                 goomba_group.update(wall_group, koopa_group, self.players)
 
                 # draw map, enemies, then player
+                self.bg.draw_map(self.canvas, (-self.x_offset, 0))
                 self.map.draw_map(self.canvas, (-self.x_offset, 0))
 
                 # ENEMIES
@@ -123,25 +139,26 @@ class Display:
             self.screen.blit(self.canvas, (0, 0))
             pg.display.update()
 
-            if player.num_lives == 0:
+            if player.num_lives <= 0:
                 self.endGame()
             elif player.player_size == Power.DEAD:
                 self.x_offset = 0
+                player.num_lives -= 1
                 player.reset()
 
         while self.gameOver:
             for event in pg.event.get():
-                 if event.type == QUIT:
+                if event.type == QUIT:
                     pg.quit()
                     sys.exit()
             self.screen.blit(self.canvas, (0, 0))
             pg.display.update()
-
 
     def endGame(self):
         self.canvas.fill(constants.BLACK)
         font = pg.font.Font(constants.FONT_DIR, 20)
         gameover_label = font.render("GAME OVER", True, (255, 255, 255))
         width, height = font.size("GAME OVER")
-        self.canvas.blit(gameover_label, (constants.RESOLUTION[0]*0.5 - width/2, constants.RESOLUTION[1]*0.5 - height/2))
+        self.canvas.blit(
+            gameover_label, (constants.RESOLUTION[0]*0.5 - width/2, constants.RESOLUTION[1]*0.5 - height/2))
         self.gameOver = True

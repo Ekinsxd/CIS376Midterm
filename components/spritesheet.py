@@ -40,8 +40,8 @@ black = (0, 0, 0)
 my_spritesheet = Spritesheet("assets/Super Mario Bros Sprite", "gif")
 
 MARIO_M_SPRITES = [
-    my_spritesheet.parse_sprite('lm1'),  # jump
     my_spritesheet.parse_sprite('lm7'),  # idle
+    my_spritesheet.parse_sprite('lm1'),  # jump
     my_spritesheet.parse_sprite('lm6'),  # duck
     my_spritesheet.parse_sprite('lm3'),
     my_spritesheet.parse_sprite('lm4'),
@@ -110,6 +110,16 @@ TILE_SPRITES = {
     ],
     "blank": tile_sheet.parse_sprite('blanktile'),
     "coin": tile_sheet.parse_sprite('coin'),
-    "pipe": tile_sheet.parse_sprite('pipe'),
     "flag": tile_sheet.parse_sprite('flag')
+}
+
+BACKGROUND_SPRITES = {
+    "hillS": tile_sheet.parse_sprite('smallHill'),
+    "hillB": tile_sheet.parse_sprite('bigHill'),
+    "cloudS": tile_sheet.parse_sprite('cloudS'),
+    "cloudM": tile_sheet.parse_sprite('cloudM'),
+    "cloudB": tile_sheet.parse_sprite('cloudB'),
+    "bushS": tile_sheet.parse_sprite('bushS'),
+    "castle": tile_sheet.parse_sprite('castle'),
+    "pipe": tile_sheet.parse_sprite('pipe')
 }

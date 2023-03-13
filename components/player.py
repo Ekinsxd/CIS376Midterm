@@ -3,6 +3,7 @@ from enum import Enum
 from components.spritesheet import *
 from components.Tiles.DynamicTile import DynamicTile
 from components.Tiles.MysteryBox import MysteryBoxTile
+from components.Tiles.Flag import Flag
 from components.constants import RESOLUTION
 import time
 
@@ -36,10 +37,12 @@ class Player(pg.sprite.Sprite):
         self.LEFT_KEY, self.RIGHT_KEY, self.RUN_KEY, self.FACING_RIGHT = False, False, False, True
         self.is_jumping, self.on_ground = False, False
         self.gravity, self.friction = .35, -.22
+        self.player_win = False
         self.walk_speed = 4
-        self.run_speed = 10
+        self.run_speed = 30
+        self.check_collisions = True
 
-        self.position = pg.math.Vector2(0, 0)
+        self.position = pg.math.Vector2(5500, 0)
         self.velocity = pg.math.Vector2(0, 0)
         self.acceleration = pg.math.Vector2(0, self.gravity)
 
@@ -65,13 +68,30 @@ class Player(pg.sprite.Sprite):
         """
         surface.blit(self.image, (self.rect.x - offset, self.rect.y))
 
+    def winning_animation(self):
+        if not self.on_ground:
+            self.acceleration.y = 0
+            self.velocity.y = 2.5
+            self.velocity.x = 0
+            self.LEFT_KEY = False
+            self.RIGHT_KEY = False
+        else:
+            self.check_collisions = False
+            self.velocity.y = 0
+            self.walk_speed = 1
+            self.RIGHT_KEY = True
+            self.LEFT_KEY = False
+            if self.position.x >= 6400:
+                self.RIGHT_KEY = False
+                return True
+            pass
+        return False
 
     def lose_health(self):
         if self.invincibility <= 0:
             self.power_decrease()
             self.invincibility = 90
         pass
-
 
     def power_decrease(self):
         if self.player_size == Power.FIRE:
@@ -82,17 +102,17 @@ class Player(pg.sprite.Sprite):
         elif self.player_size == Power.SMALL:
             self.player_size = Power.DEAD
 
-
     def update(self, dt, tiles, min_x):
+        print(self.velocity.y, self.acceleration.y)
         self.frame_count += 1
         self.jump_cooldown -= 1
         self.invincibility -= 1
         self.horizontal_movement(dt, min_x)
-        self.check_collisions_x(tiles)
         self.vertical_movement(dt)
-        self.check_collisions_y(tiles)
+        if self.check_collisions == True:
+            self.check_collisions_x(tiles)
+            self.check_collisions_y(tiles)
         self.calc_player_image()
-
 
     def horizontal_movement(self, dt, min_x):
         self.acceleration.x = 0
@@ -127,9 +147,9 @@ class Player(pg.sprite.Sprite):
             self.position.x += add_pos
             self.rect.x = self.position.x
 
-
     def vertical_movement(self, dt):
-        self.velocity.y += self.acceleration.y * dt
+        if not self.player_win:
+            self.velocity.y += self.acceleration.y * dt
         if self.velocity.y > 7:
             self.velocity.y = 7
         self.position.y += self.velocity.y * dt + \
@@ -142,12 +162,10 @@ class Player(pg.sprite.Sprite):
         if self.rect.bottom > RESOLUTION[0]:
             self.player_size = Power.DEAD
 
-
     def limit_velocity(self, max_vel):
         self.velocity.x = max(-max_vel, min(self.velocity.x, max_vel))
         if abs(self.velocity.x) < .01:
             self.velocity.x = 0
-
 
     def calc_player_image(self):
         if self.player_size == Power.SMALL:
@@ -171,7 +189,6 @@ class Player(pg.sprite.Sprite):
         if self.FACING_RIGHT:
             self.image = pg.transform.flip(self.image, True, False)
 
-
     def reset(self):
         self.player_state = State.IDLE
         self.player_size = Power.FIRE
@@ -179,16 +196,14 @@ class Player(pg.sprite.Sprite):
         self.velocity = pg.math.Vector2(0, 0)
         self.acceleration = pg.math.Vector2(0, self.gravity)
         self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * 2)
-        
 
     def jump(self):
         if self.on_ground and self.jump_cooldown < 0:
             self.player_state = State.JUMPING
             self.is_jumping = True
-            self.velocity.y -= 13
+            self.velocity.y -= 11
             self.on_ground = False
             self.jump_cooldown = 15
-
 
     def bounce_off_enemy(self):
         if self.jump_cooldown < 0:
@@ -198,7 +213,6 @@ class Player(pg.sprite.Sprite):
             self.on_ground = False
             self.jump_cooldown = 15
 
-
     def get_hits(self, tiles):
         hits = []
         for tile in tiles:
@@ -206,23 +220,31 @@ class Player(pg.sprite.Sprite):
                 hits.append(tile)
         return hits
 
-
     def check_collisions_x(self, tiles):
         collisions = self.get_hits(tiles)
         for tile in collisions:
             if self.velocity.x > 0:  # Hit tile moving right
+                if isinstance(tile, Flag):
+                    self.player_win = True
+                    return
                 self.position.x = tile.rect.left - self.rect.w
                 self.rect.x = self.position.x
+
             elif self.velocity.x < 0:  # Hit tile moving left
                 self.position.x = tile.rect.right
                 self.rect.x = self.position.x
 
-
     def check_collisions_y(self, tiles):
-        self.on_ground = False
+
+        if self.check_collisions:
+            self.on_ground = False
+
         self.rect.bottom += 1
         collisions = self.get_hits(tiles)
         for tile in collisions:
+            if isinstance(tile, Flag):
+                self.player_win = True
+                continue
             if self.velocity.y > 0:  # Hit tile from the top
                 self.on_ground = True
                 self.is_jumping = False

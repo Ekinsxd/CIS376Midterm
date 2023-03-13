@@ -4,6 +4,7 @@ import os
 from components.Tiles.BrickTile import BrickTile
 from components.Tiles.StaticTile import StaticTile
 from components.Tiles.MysteryBox import MysteryBoxTile
+from components.Tiles.Flag import Flag
 
 
 class TileMap():
@@ -18,18 +19,16 @@ class TileMap():
         self.map_surface.set_colorkey((0, 0, 0))
         self.load_map()
 
-
     def draw_map(self, surface, camera):
         surface.blit(self.map_surface, camera)
-
 
     def load_map(self):
         self.dynamicGroup.update(self.tiles)
         self.dynamicGroup.draw(self.map_surface)
         self.staticGroup.draw(self.map_surface)
 
-
     # Only called for initial start of game
+
     def read_csv(self, filename):
         map = []
         with open(os.path.join(filename)) as data:
@@ -38,8 +37,8 @@ class TileMap():
                 map.append(list(row))
         return map
 
-
     # Only called for initial start of game
+
     def load_tiles(self, filename):
         tiles = []
         map = self.read_csv(filename)
@@ -49,28 +48,39 @@ class TileMap():
             for tile in row:
                 if tile == '0':
                     mysteryTile = MysteryBoxTile('mbox', x * self.tile_size,
-                                 y * self.tile_size, self.spritesheet)
+                                                 y * self.tile_size, self.spritesheet)
                     tiles.append(mysteryTile)
                     self.dynamicGroup.add(mysteryTile)
 
                 elif tile == '20':
                     groundTile = StaticTile('ground', x * self.tile_size,
-                                 y * self.tile_size, self.spritesheet)
+                                            y * self.tile_size, self.spritesheet)
                     tiles.append(groundTile)
                     self.staticGroup.add(groundTile)
-                    
+
                 elif tile == '30':
                     brickTile = BrickTile('brick', x * self.tile_size,
-                                 y * self.tile_size, self.spritesheet)
+                                          y * self.tile_size, self.spritesheet)
                     tiles.append(brickTile)
                     self.dynamicGroup.add(brickTile)
 
                 elif tile == '25':
                     boxTile = StaticTile('box', x * self.tile_size,
-                                 y * self.tile_size, self.spritesheet)
+                                         y * self.tile_size, self.spritesheet)
                     tiles.append(boxTile)
                     self.staticGroup.add(boxTile)
 
+                elif tile == '2':  # FLAG
+                    flag = Flag('flag', x * self.tile_size,
+                                y * self.tile_size, self.spritesheet)
+                    tiles.append(flag)
+                    self.staticGroup.add(flag)
+
+                # elif tile == '34':#PIPE
+                #     boxTile = StaticTile('box', x * self.tile_size,
+                #                          y * self.tile_size, self.spritesheet)
+                #     tiles.append(boxTile)
+                #     self.staticGroup.add(boxTile)
                     # Move to next tile in current row
                 x += 1
 

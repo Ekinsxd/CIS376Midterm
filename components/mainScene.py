@@ -98,8 +98,8 @@ class Display:
                     self.winner_animation = True
                     if player.winning_animation():
                         self.gameOver = True
+                        # not working?
                         self.endGame()
-                        print("done?")
 
                 if player.rect.x > self.x_offset + constants.RESOLUTION[0] / 2 and \
                         self.x_offset < player.position.x:
@@ -155,6 +155,10 @@ class Display:
             pg.display.update()
 
     def endGame(self):
+        """
+        It takes the canvas, fills it with black, creates a font, creates a label, gets the width and
+        height of the label, and then blits the label to the canvas
+        """
         self.canvas.fill(constants.BLACK)
         font = pg.font.Font(constants.FONT_DIR, 20)
         gameover_label = font.render("GAME OVER", True, (255, 255, 255))

@@ -4,8 +4,14 @@ import time
 from components.spritesheet import MARIO_S_SPRITES
 
 
+# This class is a subclass of the pygame.sprite.Sprite class. It has a constructor that takes a font
+# object, a color, and a position. It has a method called update that takes a score and displays it on
+# the screen.
 class ScoreLabel(pygame.sprite.Sprite):
     def __init__(self):
+        """
+        It's a function that initializes the class.
+        """
         pygame.sprite.Sprite.__init__(self)
         self.font = pygame.font.Font(FONT_DIR, 20)
         self.mario_image = pygame.transform.scale(MARIO_S_SPRITES[0], (24, 24))
@@ -13,6 +19,14 @@ class ScoreLabel(pygame.sprite.Sprite):
             pygame.image.load('assets/clock.png'), (24, 24))
 
     def draw(self, surface, score, num_lives, player_time):
+        """
+        It draws the score, lives, and time to the screen
+        
+        :param surface: The surface to draw the score on
+        :param score: int
+        :param num_lives: The number of lives the player has
+        :param player_time: the time the player started the game
+        """
         delta_time = time.time() - player_time
         # Write score to screen surface
         score_text = str(score).zfill(7)

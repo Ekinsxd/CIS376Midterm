@@ -9,6 +9,12 @@ from components.Tiles.Flag import Flag
 
 class TileMap():
     def __init__(self, filename, spritesheet):
+        """
+        It creates a surface, sets the colorkey to black, and then loads the map.
+        
+        :param filename: The name of the file that contains the map data
+        :param spritesheet: The spritesheet that contains the tiles
+        """
         self.dynamicGroup = pygame.sprite.Group()
         self.staticGroup = pygame.sprite.Group()
         self.tile_size = 32
@@ -20,9 +26,18 @@ class TileMap():
         self.load_map()
 
     def draw_map(self, surface, camera):
+        """
+        It takes the map surface and blits it to the camera.
+        
+        :param surface: The surface to draw the map on
+        :param camera: A pygame.Rect object that represents the camera's position and size
+        """
         surface.blit(self.map_surface, camera)
 
     def load_map(self):
+        """
+        It draws the map to the screen
+        """
         self.dynamicGroup.update(self.tiles)
         self.dynamicGroup.draw(self.map_surface)
         self.staticGroup.draw(self.map_surface)
@@ -30,6 +45,12 @@ class TileMap():
     # Only called for initial start of game
 
     def read_csv(self, filename):
+        """
+        It reads a csv file and returns a list of lists
+        
+        :param filename: the name of the file to be read
+        :return: A list of lists.
+        """
         map = []
         with open(os.path.join(filename)) as data:
             data = csv.reader(data, delimiter=',')
@@ -40,6 +61,12 @@ class TileMap():
     # Only called for initial start of game
 
     def load_tiles(self, filename):
+        """
+        It reads a csv file and creates a list of tiles based on the values in the csv file
+        
+        :param filename: The name of the file to load the map from
+        :return: The tiles are being returned.
+        """
         tiles = []
         map = self.read_csv(filename)
         x, y = 0, 0

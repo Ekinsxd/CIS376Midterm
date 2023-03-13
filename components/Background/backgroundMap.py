@@ -4,8 +4,15 @@ import os
 from components.Background.background import Background
 
 
+# > This class is used to create a background map for the game
 class BackgroundMap():
     def __init__(self, filename, spritesheet):
+        """
+        It loads the background images from the spritesheet, then loads the map from the file.
+        
+        :param filename: The name of the file that contains the map data
+        :param spritesheet: The spritesheet that contains the tiles
+        """
         self.spriteGroup = pygame.sprite.Group()
         self.tile_size = 32
         self.start_x, self.start_y = 0, 0
@@ -16,15 +23,30 @@ class BackgroundMap():
         self.load_map()
 
     def draw_map(self, surface, camera):
+        """
+        It takes the map surface and blits it to the camera.
+        
+        :param surface: The surface to draw the map on
+        :param camera: A pygame.Rect object that represents the camera's position and size
+        """
         surface.blit(self.map_surface, camera)
 
     def load_map(self):
+        """
+        It takes the background images and draws them to the map surface.
+        """
         self.spriteGroup.update(self.bg_images)
         self.spriteGroup.draw(self.map_surface)
 
     # Only called for initial start of game
 
     def read_csv(self, filename):
+        """
+        It reads a csv file and returns a list of lists
+        
+        :param filename: the name of the file to be read
+        :return: A list of lists.
+        """
         map = []
         with open(os.path.join(filename)) as data:
             data = csv.reader(data, delimiter=',')
@@ -35,6 +57,12 @@ class BackgroundMap():
     # Only called for initial start of game
 
     def load_bg(self, filename):
+        """
+        It reads a csv file and creates a list of background objects
+        
+        :param filename: The name of the CSV file to load
+        :return: The tiles are being returned.
+        """
         tiles = []
         map = self.read_csv(filename)
         x, y = 0, 0

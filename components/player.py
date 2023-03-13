@@ -69,6 +69,11 @@ class Player(pg.sprite.Sprite):
         surface.blit(self.image, (self.rect.x - offset, self.rect.y))
 
     def winning_animation(self):
+        """
+        If the player is not on the ground, make him jump. If he is on the ground, make him walk right
+        until he reaches the end of the level
+        :return: signal to the main scene that the player has reached the end of the level
+        """
         if not self.on_ground:
             self.acceleration.y = 0
             self.velocity.y = 2.5
@@ -84,16 +89,23 @@ class Player(pg.sprite.Sprite):
             if self.position.x >= 6400:
                 self.RIGHT_KEY = False
                 return True
-            pass
         return False
 
     def lose_health(self):
+        """
+        If the player is not invincible, decrease the player's power and set the player's invincibility
+        to 90 frames
+        """
         if self.invincibility <= 0:
             self.power_decrease()
             self.invincibility = 90
         pass
 
     def power_decrease(self):
+        """
+        If the player is on fire, make them big. If they're big, make them small. If they're small, kill
+        them
+        """
         if self.player_size == Power.FIRE:
             self.player_size = Power.BIG
         elif self.player_size == Power.BIG:
@@ -103,7 +115,14 @@ class Player(pg.sprite.Sprite):
             self.player_size = Power.DEAD
 
     def update(self, dt, tiles, min_x):
-        print(self.velocity.y, self.acceleration.y)
+        """
+        The function updates the player's position, checks for collisions, and calculates the player's
+        image
+
+        :param dt: delta time
+        :param tiles: A list of all the tiles in the level
+        :param min_x: The minimum x value of the screen
+        """
         self.frame_count += 1
         self.jump_cooldown -= 1
         self.invincibility -= 1
@@ -115,6 +134,13 @@ class Player(pg.sprite.Sprite):
         self.calc_player_image()
 
     def horizontal_movement(self, dt, min_x):
+        """
+        If the player is not jumping, and the player is moving left or right, the player's state is set
+        to running
+
+        :param dt: time since last frame
+        :param min_x: The minimum x position the player can move to
+        """
         self.acceleration.x = 0
         if not self.is_jumping:
             self.player_state = State.IDLE
@@ -148,6 +174,19 @@ class Player(pg.sprite.Sprite):
             self.rect.x = self.position.x
 
     def vertical_movement(self, dt):
+        """
+        If the player is not dead, then the player's velocity is increased by the acceleration
+        multiplied by the time. 
+        If the player's velocity is greater than 7, then the player's velocity is set to 7. 
+        The player's position is then increased by the player's velocity multiplied by the time plus the
+        acceleration multiplied by .5 multiplied by the time squared. 
+        The player's rect bottom is then set to the player's position. 
+        If the player's velocity is less than 0.2 and the player is on the ground, then the player is
+        not jumping. 
+        If the player's rect bottom is greater than the resolution, then the player is dead
+
+        :param dt: time since last frame
+        """
         if not self.player_win:
             self.velocity.y += self.acceleration.y * dt
         if self.velocity.y > 7:
@@ -163,11 +202,23 @@ class Player(pg.sprite.Sprite):
             self.player_size = Power.DEAD
 
     def limit_velocity(self, max_vel):
+        """
+        If the velocity is greater than the max velocity, set it to the max velocity. If the velocity is
+        less than the negative max velocity, set it to the negative max velocity. If the velocity is
+        between the max and negative max velocities, leave it alone. If the velocity is less than .01,
+        set it to 0
+
+        :param max_vel: The maximum velocity the player can move at
+        """
         self.velocity.x = max(-max_vel, min(self.velocity.x, max_vel))
         if abs(self.velocity.x) < .01:
             self.velocity.x = 0
 
     def calc_player_image(self):
+        """
+        The function is called when the player is in the game and it changes the image of the player
+        depending on the state of the player
+        """
         if self.player_size == Power.SMALL:
             self.sprites = MARIO_S_SPRITES
         elif self.player_size == Power.BIG:
@@ -190,6 +241,9 @@ class Player(pg.sprite.Sprite):
             self.image = pg.transform.flip(self.image, True, False)
 
     def reset(self):
+        """
+        The function resets the player's state, size, position, velocity, acceleration, and rect
+        """
         self.player_state = State.IDLE
         self.player_size = Power.FIRE
         self.position = pg.math.Vector2(0, 0)
@@ -198,6 +252,11 @@ class Player(pg.sprite.Sprite):
         self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * 2)
 
     def jump(self):
+        """
+        If the player is on the ground and the jump cooldown is less than 0, then the player is jumping,
+        the player is jumping, the player's velocity is set to -11, the player is no longer on the
+        ground, and the jump cooldown is set to 15
+        """
         if self.on_ground and self.jump_cooldown < 0:
             self.player_state = State.JUMPING
             self.is_jumping = True
@@ -206,6 +265,9 @@ class Player(pg.sprite.Sprite):
             self.jump_cooldown = 15
 
     def bounce_off_enemy(self):
+        """
+        If the player is not jumping, then the player is jumping
+        """
         if self.jump_cooldown < 0:
             self.player_state = State.JUMPING
             self.is_jumping = True
@@ -214,6 +276,12 @@ class Player(pg.sprite.Sprite):
             self.jump_cooldown = 15
 
     def get_hits(self, tiles):
+        """
+        It takes a list of tiles and returns a list of tiles that collide with the player
+
+        :param tiles: A list of rects that the player can collide with
+        :return: The hits list is being returned.
+        """
         hits = []
         for tile in tiles:
             if self.rect.colliderect(tile):
@@ -221,6 +289,14 @@ class Player(pg.sprite.Sprite):
         return hits
 
     def check_collisions_x(self, tiles):
+        """
+        If the player is moving right and hits a flag, the player wins. If the player is moving right
+        and hits a tile, the player stops moving right. If the player is moving left and hits a tile,
+        the player stops moving left
+
+        :param tiles: A list of all the tiles in the level
+        :return: The position of the player.
+        """
         collisions = self.get_hits(tiles)
         for tile in collisions:
             if self.velocity.x > 0:  # Hit tile moving right
@@ -235,6 +311,13 @@ class Player(pg.sprite.Sprite):
                 self.rect.x = self.position.x
 
     def check_collisions_y(self, tiles):
+        """
+        If the player is moving down, set the player's position to the top of the tile, and set the
+        player's velocity to 0. If the player is moving up, set the player's position to the bottom of
+        the tile, and set the player's velocity to 0.
+
+        :param tiles: A list of all the tiles in the game
+        """
 
         if self.check_collisions:
             self.on_ground = False

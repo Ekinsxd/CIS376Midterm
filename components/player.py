@@ -75,6 +75,7 @@ class Player(pg.sprite.Sprite):
         :return: signal to the main scene that the player has reached the end of the level
         """
         if not self.on_ground:
+            self.RUN_KEY = False
             self.acceleration.y = 0
             self.velocity.y = 2.5
             self.velocity.x = 0
@@ -127,9 +128,10 @@ class Player(pg.sprite.Sprite):
         self.jump_cooldown -= 1
         self.invincibility -= 1
         self.horizontal_movement(dt, min_x)
-        self.vertical_movement(dt)
         if self.check_collisions == True:
             self.check_collisions_x(tiles)
+        self.vertical_movement(dt)
+        if self.check_collisions == True:
             self.check_collisions_y(tiles)
         self.calc_player_image()
 

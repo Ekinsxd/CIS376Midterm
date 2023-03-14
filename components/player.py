@@ -42,7 +42,7 @@ class Player(pg.sprite.Sprite):
         self.run_speed = 30
         self.check_collisions = True
 
-        self.position = pg.math.Vector2(5500, 0)
+        self.position = pg.math.Vector2(100, 400)
         self.velocity = pg.math.Vector2(0, 0)
         self.acceleration = pg.math.Vector2(0, self.gravity)
 

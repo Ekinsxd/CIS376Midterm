@@ -51,13 +51,13 @@ class Display:
           None
         """
         # Test Enemies implementation
-        koopa = Koopa(1400, 180, Display.world)
         koopa_group = pg.sprite.Group()
-        koopa_group.add(koopa)
-        wall_group = pg.sprite.Group()
-        goomba1 = Goomba(1000, 180, Display.world)
+        wall_group = self.map.dynamicGroup
+        goomba1 = Goomba(540, 180, Display.world)
         goomba_group = pg.sprite.Group()
         goomba_group.add(goomba1)
+        koopa_spawn = [4300]
+        goomba_spawn = [800, 900, 1500, 1550, 1600, 2000, 2100, 2800, 2900, 3000, 4350, 4400, 4400, 4450]
 
         while not self.gameOver:  # main game loop
             # Gets and deals with events.
@@ -65,6 +65,19 @@ class Display:
                 constants.FRAME_LIMIT) * .001 * 60
 
             for player in self.players:
+                print(player.rect.x)
+                current_x = player.rect.x
+                
+                for k_x in koopa_spawn:
+                    if current_x >= k_x:
+                        koopa_spawn.remove(k_x)
+                        koopa_group.add(Koopa(current_x + 410, 180, Display.world))
+                
+                for g_x in goomba_spawn:
+                    if current_x >= g_x:
+                        goomba_spawn.remove(g_x)
+                        goomba_group.add(Goomba(current_x + 410, 180, Display.world))
+                
 
                 if not player.player_win:
                     for event in pg.event.get():

@@ -42,9 +42,10 @@ class Player(pg.sprite.Sprite):
         self.run_speed = 30
         self.check_collisions = True
 
-        self.position = pg.math.Vector2(100, 400)
+        self.position = pg.math.Vector2(0, 0)
         self.velocity = pg.math.Vector2(0, 0)
         self.acceleration = pg.math.Vector2(0, self.gravity)
+        self.jump_sound = pygame.mixer.Sound('assets/sounds/jump.wav')
 
         self.frame_count = 0
         self.image = None
@@ -238,7 +239,7 @@ class Player(pg.sprite.Sprite):
         elif self.player_state == State.RUNNING:
             self.image = self.sprites[3 + (self.frame_count // 10) % 4]
         elif self.player_state == State.DEAD:
-            self.num_lives -= 1
+            pass
 
         if self.FACING_RIGHT:
             self.image = pg.transform.flip(self.image, True, False)
@@ -262,6 +263,7 @@ class Player(pg.sprite.Sprite):
         """
         if self.on_ground and self.jump_cooldown < 0:
             self.player_state = State.JUMPING
+            self.jump_sound.play()
             self.is_jumping = True
             self.velocity.y -= 11
             self.on_ground = False

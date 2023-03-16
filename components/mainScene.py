@@ -4,7 +4,7 @@ from pygame.locals import *
 import components.constants as constants
 import components.spritesheet as spritesheet
 from components.Tiles.TileMap import TileMap
-from components.player import Player, State
+from components.player import Player, Power
 from components.Enemies.Koopa import Koopa
 from components.Enemies.Goomba import Goomba
 from components.ScoreLabel import ScoreLabel
@@ -169,7 +169,7 @@ class Display:
 
             if player.num_lives <= 0:
                 self.endGame()
-            elif player.player_size == State.DEAD:
+            elif player.player_size == Power.DEAD:
                 self.x_offset = 0
                 player.num_lives -= 1
                 player.reset()

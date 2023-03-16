@@ -1,7 +1,6 @@
 import Box2D
 import pygame
 import components.constants as constants
-
 world_to_box_ratio = 1/100
 box_to_world_ratio = 100
 gravity = Box2D.b2Vec2(0.5, -10.0)
@@ -32,7 +31,7 @@ class EnemySprite(pygame.sprite.Sprite):
         self.move_left = True
         """Helps determine where to move."""
 
-        self.stomp_sound = pygame.mixer.Sound('assets/stomp.wav')
+        self.stomp_sound = pygame.mixer.Sound('assets/sounds/stomp.wav')
 
         self.dirty = 2
 

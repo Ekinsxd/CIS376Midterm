@@ -103,12 +103,13 @@ class TileMap():
                     tiles.append(flag)
                     self.staticGroup.add(flag)
 
-                # elif tile == '34':#PIPE
-                #     boxTile = StaticTile('box', x * self.tile_size,
-                #                          y * self.tile_size, self.spritesheet)
-                #     tiles.append(boxTile)
-                #     self.staticGroup.add(boxTile)
-                    # Move to next tile in current row
+                elif tile == '34': #PIPE
+                    pipeTile = StaticTile('pipe', x * self.tile_size,
+                                         y * self.tile_size, self.spritesheet)
+                    tiles.append(pipeTile)
+                    self.staticGroup.add(pipeTile)
+
+                # Move to next tile in current row
                 x += 1
 
             # Move to next row

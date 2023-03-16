@@ -110,7 +110,8 @@ TILE_SPRITES = {
     ],
     "blank": tile_sheet.parse_sprite('blanktile'),
     "coin": tile_sheet.parse_sprite('coin'),
-    "flag": tile_sheet.parse_sprite('flag')
+    "flag": tile_sheet.parse_sprite('flag'),
+    "pipe": tile_sheet.parse_sprite('pipe')
 }
 
 BACKGROUND_SPRITES = {
@@ -120,6 +121,5 @@ BACKGROUND_SPRITES = {
     "cloudM": tile_sheet.parse_sprite('cloudM'),
     "cloudB": tile_sheet.parse_sprite('cloudB'),
     "bushS": tile_sheet.parse_sprite('bushS'),
-    "castle": tile_sheet.parse_sprite('castle'),
-    "pipe": tile_sheet.parse_sprite('pipe')
+    "castle": tile_sheet.parse_sprite('castle')
 }

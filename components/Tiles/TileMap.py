@@ -5,13 +5,14 @@ from components.Tiles.BrickTile import BrickTile
 from components.Tiles.StaticTile import StaticTile
 from components.Tiles.MysteryBox import MysteryBoxTile
 from components.Tiles.Flag import Flag
+from components.Tiles.Pipe import Pipe
 
 
 class TileMap():
     def __init__(self, filename, spritesheet):
         """
         It creates a surface, sets the colorkey to black, and then loads the map.
-        
+
         :param filename: The name of the file that contains the map data
         :param spritesheet: The spritesheet that contains the tiles
         """
@@ -28,7 +29,7 @@ class TileMap():
     def draw_map(self, surface, camera):
         """
         It takes the map surface and blits it to the camera.
-        
+
         :param surface: The surface to draw the map on
         :param camera: A pygame.Rect object that represents the camera's position and size
         """
@@ -47,7 +48,7 @@ class TileMap():
     def read_csv(self, filename):
         """
         It reads a csv file and returns a list of lists
-        
+
         :param filename: the name of the file to be read
         :return: A list of lists.
         """
@@ -63,7 +64,7 @@ class TileMap():
     def load_tiles(self, filename):
         """
         It reads a csv file and creates a list of tiles based on the values in the csv file
-        
+
         :param filename: The name of the file to load the map from
         :return: The tiles are being returned.
         """
@@ -103,9 +104,9 @@ class TileMap():
                     tiles.append(flag)
                     self.staticGroup.add(flag)
 
-                elif tile == '34': #PIPE
-                    pipeTile = StaticTile('pipe', x * self.tile_size,
-                                         y * self.tile_size, self.spritesheet)
+                elif tile == '34':  # PIPE
+                    pipeTile = Pipe('pipe', x * self.tile_size,
+                                    y * self.tile_size, self.spritesheet, (2, 3))
                     tiles.append(pipeTile)
                     self.staticGroup.add(pipeTile)
 

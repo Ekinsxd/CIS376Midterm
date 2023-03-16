@@ -9,6 +9,7 @@ from components.Enemies import Koopa, Goomba
 from components.ScoreLabel import ScoreLabel
 from components.Background.backgroundMap import BackgroundMap
 import Box2D
+from time import sleep
 
 
 class Display:
@@ -40,6 +41,9 @@ class Display:
         self.gameOver = False
         self.backgroundSprites = pg.sprite.Group()
         self.winner_animation = False
+        self.main_music = pg.mixer.Sound('assets/sounds/music.wav')
+        self.win_music = pg.mixer.Sound('assets/sounds/win.wav')
+        self.lose_music = pg.mixer.Sound('assets/sounds/game_over.wav')
 
     def run(self):
         """A method that contains the main game loop.
@@ -50,6 +54,7 @@ class Display:
         Returns:
           None
         """
+        self.main_music.play()
         # Test Enemies implementation
         koopa_group = pg.sprite.Group()
         wall_group = self.map.dynamicGroup
@@ -57,7 +62,8 @@ class Display:
         goomba_group = pg.sprite.Group()
         goomba_group.add(goomba1)
         koopa_spawn = [4300]
-        goomba_spawn = [800, 900, 1500, 1550, 1600, 2000, 2100, 2800, 2900, 3000, 4350, 4400, 4400, 4450]
+        goomba_spawn = [800, 900, 1500, 1550, 1600, 2000,
+                        2100, 2800, 2900, 3000, 4350, 4400, 4400, 4450]
 
         while not self.gameOver:  # main game loop
             # Gets and deals with events.
@@ -65,19 +71,19 @@ class Display:
                 constants.FRAME_LIMIT) * .001 * 60
 
             for player in self.players:
-                print(player.rect.x)
                 current_x = player.rect.x
-                
+
                 for k_x in koopa_spawn:
                     if current_x >= k_x:
                         koopa_spawn.remove(k_x)
-                        koopa_group.add(Koopa(current_x + 410, 180, Display.world))
-                
+                        koopa_group.add(
+                            Koopa(current_x + 410, 180, Display.world))
+
                 for g_x in goomba_spawn:
                     if current_x >= g_x:
                         goomba_spawn.remove(g_x)
-                        goomba_group.add(Goomba(current_x + 410, 180, Display.world))
-                
+                        goomba_group.add(
+                            Goomba(current_x + 410, 180, Display.world))
 
                 if not player.player_win:
                     for event in pg.event.get():
@@ -108,56 +114,65 @@ class Display:
                             sys.exit()
 
                 else:
+                    if self.win_music.get_num_channels() == 0:
+                        self.win_music.play()
+                    self.main_music.stop()
                     self.winner_animation = True
                     if player.winning_animation():
                         self.gameOver = True
+                        player.sprite_index = 0
                         # not working?
-                        self.endGame()
+
+                        while self.win_music.get_num_channels() != 0:
+                            pass
+                        self.winGame()
 
                 if player.rect.x > self.x_offset + constants.RESOLUTION[0] / 2 and \
                         self.x_offset < player.position.x:
                     self.x_offset = player.position.x - \
                         constants.RESOLUTION[0] / 2
 
-                # Update Box2D Physics
-                Display.world.Step(Display.time_step,
-                                   Display.vel_iters, Display.pos_iters)
-                player.update(dt, self.map.tiles, self.x_offset)
+                if not self.gameOver:
+                    # Update Box2D Physics
+                    Display.world.Step(Display.time_step,
+                                       Display.vel_iters, Display.pos_iters)
+                    player.update(dt, self.map.tiles, self.x_offset)
 
-                self.canvas.fill(constants.SKY_BLUE)
-                self.bg.load_map()
-                self.map.load_map()
+                    self.canvas.fill(constants.SKY_BLUE)
+                    self.bg.load_map()
+                    self.map.load_map()
 
-                koopa_group.update(wall_group, self.players)
-                goomba_group.update(wall_group, koopa_group, self.players)
+                    koopa_group.update(wall_group, self.players)
+                    goomba_group.update(wall_group, koopa_group, self.players)
 
-                # draw map, enemies, then player
-                self.bg.draw_map(self.canvas, (-self.x_offset, 0))
-                self.map.draw_map(self.canvas, (-self.x_offset, 0))
+                    # draw map, enemies, then player
+                    self.bg.draw_map(self.canvas, (-self.x_offset, 0))
+                    self.map.draw_map(self.canvas, (-self.x_offset, 0))
 
-                # ENEMIES
-                for koopa in koopa_group:
-                    if koopa.update(wall_group, self.players):
-                        player.bounce_off_enemy()
-                    koopa.draw(self.canvas, self.x_offset)
-                for goomba in goomba_group:
-                    if goomba.update(wall_group, koopa_group, self.players):
-                        player.bounce_off_enemy()
-                    goomba.draw(self.canvas, self.x_offset)
+                    # ENEMIES
+                    for koopa in koopa_group:
+                        if koopa.update(wall_group, self.players):
+                            player.bounce_off_enemy()
+                        koopa.draw(self.canvas, self.x_offset)
+                    for goomba in goomba_group:
+                        if goomba.update(wall_group, koopa_group, self.players):
+                            player.bounce_off_enemy()
+                        goomba.draw(self.canvas, self.x_offset)
 
-                player.draw(self.canvas, self.x_offset)
-                self.scoreLabel.draw(
-                    self.canvas, player.score, player.num_lives, player.start_time)
+                    player.draw(self.canvas, self.x_offset)
+                    self.scoreLabel.draw(
+                        self.canvas, player.score, player.num_lives, player.start_time)
+            if not self.gameOver:
+                self.screen.blit(self.canvas, (0, 0))
+                pg.display.update()
 
-            self.screen.blit(self.canvas, (0, 0))
-            pg.display.update()
-
-            if player.num_lives <= 0:
-                self.endGame()
-            elif player.player_size == Power.DEAD:
-                self.x_offset = 0
-                player.num_lives -= 1
-                player.reset()
+                if player.num_lives <= 0:
+                    self.endGame()
+                elif player.player_size == Power.DEAD:
+                    # print("ouch")
+                    self.x_offset = 0
+                    player.num_lives -= 1
+                    player.reset()
 
         while self.gameOver:
             for event in pg.event.get():
@@ -176,6 +191,21 @@ class Display:
         font = pg.font.Font(constants.FONT_DIR, 20)
         gameover_label = font.render("GAME OVER", True, (255, 255, 255))
         width, height = font.size("GAME OVER")
+        self.canvas.blit(
+            gameover_label, (constants.RESOLUTION[0]*0.5 - width/2, constants.RESOLUTION[1]*0.5 - height/2))
+        self.gameOver = True
+        self.main_music.stop()
+        self.lose_music.play()
+
+    def winGame(self):
+        """
+        It takes the canvas, fills it with black, creates a font, creates a label, gets the width and
+        height of the label, and then blits the label to the canvas
+        """
+        self.canvas.fill(constants.BLACK)
+        font = pg.font.Font(constants.FONT_DIR, 20)
+        gameover_label = font.render("You Win!", True, (255, 255, 255))
+        width, height = font.size("You Win!")
         self.canvas.blit(
             gameover_label, (constants.RESOLUTION[0]*0.5 - width/2, constants.RESOLUTION[1]*0.5 - height/2))
         self.gameOver = True

@@ -37,7 +37,7 @@ class Enemy(pygame.sprite.Sprite):
         self.move_left = True
         """Helps determine where to move."""
 
-        self.stomp_sound = pygame.mixer.Sound('assets/stomp.wav')
+        self.stomp_sound = pygame.mixer.Sound('assets/sounds/stomp.wav')
 
         self.dirty = 2
 

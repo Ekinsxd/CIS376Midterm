@@ -4,8 +4,9 @@ from pygame.locals import *
 import components.constants as constants
 import components.spritesheet as spritesheet
 from components.Tiles.TileMap import TileMap
-from components.player import Player, Power
-from components.Enemies import Koopa, Goomba
+from components.player import Player, State
+from components.Enemies.Koopa import Koopa
+from components.Enemies.Goomba import Goomba
 from components.ScoreLabel import ScoreLabel
 from components.Background.backgroundMap import BackgroundMap
 import Box2D
@@ -65,7 +66,6 @@ class Display:
                 constants.FRAME_LIMIT) * .001 * 60
 
             for player in self.players:
-                print(player.rect.x)
                 current_x = player.rect.x
                 
                 for k_x in koopa_spawn:
@@ -154,7 +154,7 @@ class Display:
 
             if player.num_lives <= 0:
                 self.endGame()
-            elif player.player_size == Power.DEAD:
+            elif player.player_state == State.DEAD:
                 self.x_offset = 0
                 player.num_lives -= 1
                 player.reset()

@@ -10,7 +10,6 @@ import time
 
 class Power(Enum):
     """An enum to represent the size of the player."""
-    DEAD = -1
     SMALL = 0
     BIG = 1
     FIRE = 2
@@ -18,6 +17,7 @@ class Power(Enum):
 
 class State(Enum):
     """An enum to represent the size of the player."""
+    DEAD = -1
     IDLE = 0
     RUNNING = 1
     JUMPING = 2
@@ -113,7 +113,7 @@ class Player(pg.sprite.Sprite):
             self.player_size = Power.SMALL
             self.rect = pg.Rect(self.position[0], self.position[1], 32, 32)
         elif self.player_size == Power.SMALL:
-            self.player_size = Power.DEAD
+            self.player_state = State.DEAD
 
     def update(self, dt, tiles, min_x):
         """
@@ -201,7 +201,7 @@ class Player(pg.sprite.Sprite):
             self.is_jumping = False
 
         if self.rect.bottom > RESOLUTION[0]:
-            self.player_size = Power.DEAD
+            self.player_state = State.DEAD
 
     def limit_velocity(self, max_vel):
         """
@@ -227,8 +227,7 @@ class Player(pg.sprite.Sprite):
             self.sprites = MARIO_M_SPRITES
         elif self.player_size == Power.FIRE:
             self.sprites = MARIO_FIRE_SPRITES
-        elif self.player_size == Power.DEAD:
-            self.num_lives -= 1
+        
 
         if self.player_state == State.IDLE:
             self.image = self.sprites[0]
@@ -238,6 +237,8 @@ class Player(pg.sprite.Sprite):
             self.image = self.sprites[2]
         elif self.player_state == State.RUNNING:
             self.image = self.sprites[3 + (self.frame_count // 10) % 4]
+        elif self.player_state == State.DEAD:
+            self.num_lives -= 1
 
         if self.FACING_RIGHT:
             self.image = pg.transform.flip(self.image, True, False)

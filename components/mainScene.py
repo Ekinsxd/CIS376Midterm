@@ -16,10 +16,10 @@ from time import sleep
 class Display:
     """An object usedß to create a display for the player to see the program/game."""
     # Create Box2D world
-    gravity = Box2D.b2Vec2(0, -35.0)
+    gravity = Box2D.b2Vec2(0, 0)
     world = Box2D.b2World(gravity, doSleep=False)
     time_step = 1.0/60
-    vel_iters, pos_iters = 6, 2
+    vel_iters, pos_iters = 1, 1
 
     def __init__(self):
         """Constructor to create the display/screen"""
@@ -59,12 +59,11 @@ class Display:
         # Test Enemies implementation
         koopa_group = pg.sprite.Group()
         wall_group = self.map.dynamicGroup
-        goomba1 = Goomba(540, 180, Display.world)
         goomba_group = pg.sprite.Group()
-        goomba_group.add(goomba1)
-        koopa_spawn = [4300]
-        goomba_spawn = [800, 900, 1500, 1550, 1600, 2000,
-                        2100, 2800, 2900, 3000, 4350, 4400, 4400, 4450]
+        koopa_spawn = [700, 2000, 3075, 4500, 4630]
+        goomba_spawn = [800, 1500, 1550, 1600, 2000,
+                        2100, 2800, 2900, 3000, 4500, 4400, 4450]
+        # goomba_spawn = []
 
         while not self.gameOver:  # main game loop
             # Gets and deals with events.
@@ -84,7 +83,7 @@ class Display:
                     if current_x >= g_x:
                         goomba_spawn.remove(g_x)
                         goomba_group.add(
-                            Goomba(current_x + 410, 180, Display.world))
+                            Goomba(current_x + 410, 168, Display.world))
 
                 if not player.player_win:
                     for event in pg.event.get():
@@ -143,8 +142,11 @@ class Display:
                     self.bg.load_map()
                     self.map.load_map()
 
-                    koopa_group.update(wall_group, self.players)
-                    goomba_group.update(wall_group, koopa_group, self.players)
+                    koopa_group.update(self.map.staticGroup, self.players)
+                    goomba_group.update(
+                        self.map.staticGroup, koopa_group, self.players)
+                    # koopa_group.update(wall_group, self.players)
+                    # goomba_group.update(wall_group, koopa_group, self.players)
 
                     # draw map, enemies, then player
                     self.bg.draw_map(self.canvas, (-self.x_offset, 0))

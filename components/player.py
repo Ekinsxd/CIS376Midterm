@@ -46,6 +46,7 @@ class Player(pg.sprite.Sprite):
         self.velocity = pg.math.Vector2(0, 0)
         self.acceleration = pg.math.Vector2(0, self.gravity)
         self.jump_sound = pygame.mixer.Sound('assets/sounds/jump.wav')
+        self.hit_sound = pygame.mixer.Sound('assets/sounds/hit.wav')
 
         self.frame_count = 0
         self.image = None
@@ -54,7 +55,8 @@ class Player(pg.sprite.Sprite):
         self.rect = pg.Rect(self.position[0], self.position[1], 32, 32 * 2)
         self.jump_cooldown = 0
         self.invincibility = 0
-        self.num_lives = 3
+        self.num_lives = 4
+        # bug kills mario on load? load up time clips mario thru the ground
         # time mario has been alive
         self.start_time = time.time()
 
@@ -110,8 +112,10 @@ class Player(pg.sprite.Sprite):
         """
         if self.player_size == Power.FIRE:
             self.player_size = Power.BIG
+            self.hit_sound.play()
         elif self.player_size == Power.BIG:
             self.player_size = Power.SMALL
+            self.hit_sound.play()
             self.rect = pg.Rect(self.position[0], self.position[1], 32, 32)
         elif self.player_size == Power.SMALL:
             self.player_size = Power.DEAD
@@ -125,6 +129,7 @@ class Player(pg.sprite.Sprite):
         :param tiles: A list of all the tiles in the level
         :param min_x: The minimum x value of the screen
         """
+        print(self.position.x)
         self.frame_count += 1
         self.jump_cooldown -= 1
         self.invincibility -= 1

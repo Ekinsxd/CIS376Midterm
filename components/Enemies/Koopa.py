@@ -3,6 +3,7 @@ import pygame
 from components.Enemies.Enemy import EnemySprite, world_to_box_ratio, box_to_world_ratio, HEIGHT
 from components.spritesheet import KOOPA_SPRITE
 
+
 class Koopa(EnemySprite):
     """A Turtle that is an enemy to the Player. 
     If a Koopa touches the player when the player is not in the air, the player dies or takes damage.
@@ -25,12 +26,12 @@ class Koopa(EnemySprite):
         """The Box2D for the Goomba, used to calcuate the position of the body based on physics."""
 
         shape = Box2D.b2PolygonShape(
-            box=(12 * world_to_box_ratio, 20 * world_to_box_ratio))
+            box=(32 * world_to_box_ratio, 48 * world_to_box_ratio))
         fixDef = Box2D.b2FixtureDef(
-            shape=shape, friction=0.1, restitution=0, density=0.5)
+            shape=shape, friction=0.5, restitution=0, density=1)
         fixDef.filter.groupIndex = -1
 
-        self.physics_box = self.body.CreateFixture(fixDef)
+        # self.physics_box = self.body.CreateFixture(fixDef)
         """For the Box2D physics collision box."""
 
         self.dirty = 2
@@ -67,11 +68,16 @@ class Koopa(EnemySprite):
         Returns:
         True if the Koopa collided with the player
         """
+        # print(self.body.position)
+        # print(self.rect.x, self.rect.y)
         flag = False
         self.rect.center = self.body.position[0] * \
             box_to_world_ratio, HEIGHT - \
             self.body.position[1] * box_to_world_ratio
+        # print(self.rect.center)
+
         collided = pygame.sprite.spritecollide(self, wallGroup, False)
+        print(collided)
         player_collision = pygame.sprite.spritecollide(self, players, False)
         if len(player_collision) > 0:
             for player in players:
@@ -93,14 +99,14 @@ class Koopa(EnemySprite):
                     flag = True
 
         if len(collided) > 0:
+            print("collided")
             # time.sleep(1)
             self.changeDirection()
 
         if not self.isDead and not self.isInShell:
-            if self.move_left:
-                self.body.linearVelocity = Box2D.b2Vec2(-1, 0)
-            else:
-                self.body.linearVelocity = Box2D.b2Vec2(1, 0)
+            self.body.linearVelocity = Box2D.b2Vec2(
+                self.shell_direction / 2, 0)
+            self.image = pygame.transform.flip(self.image, False, True)
 
         if self.count == 5:
             self.body.DestroyFixture(self.physics_box)
@@ -111,6 +117,8 @@ class Koopa(EnemySprite):
         elif self.walk_frame == 25 and not self.isInShell:
             self.image_index = (self.image_index + 1) % 2
             self.image = KOOPA_SPRITE[self.image_index]
+            if self.shell_direction > 0:
+                self.image = pygame.transform.flip(self.image, True, False)
             self.walk_frame = 0
         elif not self.isInShell:
             self.walk_frame += 1

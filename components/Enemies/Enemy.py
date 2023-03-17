@@ -3,10 +3,11 @@ import pygame
 import components.constants as constants
 world_to_box_ratio = 1/100
 box_to_world_ratio = 100
-gravity = Box2D.b2Vec2(0.5, -10.0)
+gravity = Box2D.b2Vec2(0, -30.0)
 
 WIDTH = constants.RESOLUTION[0]
 HEIGHT = constants.RESOLUTION[1]
+
 
 class EnemySprite(pygame.sprite.Sprite):
 

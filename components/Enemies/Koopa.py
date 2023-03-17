@@ -26,7 +26,7 @@ class Koopa(EnemySprite):
         """The Box2D for the Goomba, used to calcuate the position of the body based on physics."""
 
         shape = Box2D.b2PolygonShape(
-            box=(32 * world_to_box_ratio, 48 * world_to_box_ratio))
+            box=(12 * world_to_box_ratio, 20 * world_to_box_ratio))
         fixDef = Box2D.b2FixtureDef(
             shape=shape, friction=0.5, restitution=0, density=1)
         fixDef.filter.groupIndex = -1
@@ -68,16 +68,12 @@ class Koopa(EnemySprite):
         Returns:
         True if the Koopa collided with the player
         """
-        # print(self.body.position)
-        # print(self.rect.x, self.rect.y)
         flag = False
         self.rect.center = self.body.position[0] * \
             box_to_world_ratio, HEIGHT - \
             self.body.position[1] * box_to_world_ratio
-        # print(self.rect.center)
 
         collided = pygame.sprite.spritecollide(self, wallGroup, False)
-        print(collided)
         player_collision = pygame.sprite.spritecollide(self, players, False)
         if len(player_collision) > 0:
             for player in players:
@@ -99,7 +95,6 @@ class Koopa(EnemySprite):
                     flag = True
 
         if len(collided) > 0:
-            print("collided")
             # time.sleep(1)
             self.changeDirection()
 

@@ -129,7 +129,6 @@ class Player(pg.sprite.Sprite):
         :param tiles: A list of all the tiles in the level
         :param min_x: The minimum x value of the screen
         """
-        print(self.position.x)
         self.frame_count += 1
         self.jump_cooldown -= 1
         self.invincibility -= 1
